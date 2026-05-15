@@ -28,6 +28,7 @@ namespace TNovBIMUtils
         Guid TEdParamGuid = new Guid("9486acdc-ed8e-482e-aa18-b518aaf08a94");//Т_Единица измерения
         Guid adskCparamGuid = new Guid("8d057bb3-6ccd-4655-9165-55526691fe3a");//ADSK_Количество
         Guid TCountParamGuid = new Guid("b3f5d47f-d1cf-4ac4-9a38-a27b5204e16c");//Т_Количество
+        Guid adskTstParamGuid = new Guid("381b467b-3518-42bb-b183-35169c9bdfb3");//ADSK_Толщина стенки
         Guid TStParamGuid = new Guid("021340dc-4952-4429-b3a9-20ca2a308d92");//Т_Толщина стенки
         Guid TDimsParamGuid = new Guid("f45c49d7-c46f-418c-948e-d4cde7ea6772");//Т_Размер
         Guid TDiamParamGuid = new Guid("e955e814-e8de-404b-aba7-0cfe10120aff");//Т_Диаметр
@@ -81,6 +82,9 @@ namespace TNovBIMUtils
                     //Т_Имя системы
                     string TSystemValue = Param.GetStringParamValue(doc, adskGparamGuid, elem);
 
+                    //Т_Толщина стенки
+                    string TStValue = Param.GetStringParamValue(doc, adskTstParamGuid, elem);
+
                     //Назначение параметров
                     if (Param.ParamExistByGuid(TCountParamGuid, elem)) //Т_Количество
                     {
@@ -118,6 +122,11 @@ namespace TNovBIMUtils
                     {
                         Parameter TParam = elem.get_Parameter(TSystemNameParamGuid);
                         if (TParam.IsReadOnly == false) TParam.Set(TSystemValue); 
+                    }
+                    if (Param.ParamExistByGuid(TStParamGuid, elem)) //Т_Толщина стенки
+                    {
+                        Parameter TParam = elem.get_Parameter(TStParamGuid);
+                        if (TParam.IsReadOnly == false) TParam.Set(TStValue);
                     }
                 }
             }
