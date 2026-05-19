@@ -103,20 +103,8 @@ namespace TNovBIMUtils
         
         public RevitServerViewModel(IEnumerable<string> existingModels)
         {
-            /*
-            Nodes = new ObservableCollection<Node>();
-            string[] files = File.ReadAllLines(nova.novaserver + "_TNov/RS.txt");
-            foreach (string file in files)
-            {
-                Node node = new Node()
-                {
-                    Text = file,
-                    IsModel = true,
-                };
-                Nodes.Add(node);
-            }
-            */
-            List<string> filePaths = File.ReadAllLines(nova.novaserver + "_TNov/RS.txt").ToList();
+            TNovConfig config = TNovConfigLoad.LoadConfig();
+            List<string> filePaths = File.ReadAllLines(config.ServerPath + "RS.txt").ToList();
             Nodes = TreeBuilder.BuildTree(filePaths,existingModels);
         }
 

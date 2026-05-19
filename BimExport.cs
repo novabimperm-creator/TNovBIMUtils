@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows.Shapes;
 using System.Windows.Threading;
@@ -45,15 +46,12 @@ namespace TNovBIMUtils
             string docNameUserName = "_" + userName; docName = docName.Replace(docNameUserName, "");
             docName = docName.Replace(",", "");
             #endregion
-            #region Журнал
-            string TNovClassName = DBCommandName;
 
-            //проверка подключения, запись в журнал
-            if (ServerUtils.CheckConnection(TNovClassName, TNovVersion) == false) return Result.Failed;
-            #endregion
+            TNovConfig config = TNovConfigLoad.LoadConfig(DBCommandName, TNovVersion); if (config == null) return Result.Failed;
+
             #region Настройки логов
             // создание log - файла
-            Logger.Initialize(TNovClassName, dateTime, TNovVersion);
+            Logger.Initialize(DBCommandName, dateTime, TNovVersion);
 
             var viewModel0 = new AppVersionViewModel();
 
@@ -74,6 +72,8 @@ namespace TNovBIMUtils
             }
             #endregion
 
+
+            
             FailureAndWarningHandler andWarningHandler = new FailureAndWarningHandler();
             rvtApp.FailuresProcessing += new EventHandler<FailuresProcessingEventArgs>(andWarningHandler.OnFailuresProcessing);
 
@@ -104,12 +104,16 @@ namespace TNovBIMUtils
 
             #region Диалог
             Logger.Log("Диалоговое окно",1);
-            var viewModel = new BimExportViewModel(linksString);
+            var viewModel = new BimExportViewModel();
             // Десериализация
             string jsonpath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TNovClient/bimexport.json");
+            string jsonText = File.ReadAllText(jsonpath, Encoding.UTF8);
+            //if (jsonText.Contains(@"\\\\")) jsonText = jsonText.Replace(@"\\", @"\");
+            //jsonText = jsonText.Replace(@"\", "/"); 
             try
             {
-                viewModel = JsonConvert.DeserializeObject<BimExportViewModel>(File.ReadAllText(jsonpath));
+                viewModel = JsonConvert.DeserializeObject<BimExportViewModel>(jsonText);
+                viewModel.BuildTree(linksString, config.ServerPath);
                 Logger.Log("Десериализация прошла успешно",1);
             }
             catch (Exception ex)
@@ -130,7 +134,7 @@ namespace TNovBIMUtils
             //Сериализация
             try
             {
-                File.WriteAllText(jsonpath, JsonConvert.SerializeObject(viewModel));
+                File.WriteAllText(jsonpath, JsonConvert.SerializeObject(viewModel), Encoding.UTF8);
                 Logger.Log("Сериализация прошла успешно",1);
             }
             catch (Exception ex) { Logger.Log("Ошибка при сериализации: " + ex.Message, 4); }
@@ -143,7 +147,6 @@ namespace TNovBIMUtils
 
             #region Модели в работу
             string rvtPath = viewModel.folder;
-            //string rvtPathRS = wpfview.RSPath; //работает только напрямую из окна, а не из вьюмодели
             string rvtPath2 = viewModel.folder3;
             string nwcPath = viewModel.folder2;
             string nwcPathD = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -152,12 +155,13 @@ namespace TNovBIMUtils
             List<string> rvtFiles = new List<string>();
 
             string rvtPathRS = "";
+            string RSfilePath = File.ReadAllText(config.ServerPath + "RSpath.txt");
             if (viewModel.Nodes.Count > 0)
             {
                 List<Node> allNodes = GetAllNodes(viewModel.Nodes).ToList();
                 foreach (var node in allNodes)
                 {
-                    if (node.IsChecked && node.IsModel && node.IsLocked == false) rvtPathRS += @"RSN:\\" + nova.revitserver + @"\" + node.Path + "|";
+                    if (node.IsChecked && node.IsModel && node.IsLocked == false) rvtPathRS += @"RSN:\\" + RSfilePath + @"\" + node.Path + "|";
                 }
 
             }

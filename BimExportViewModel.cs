@@ -59,11 +59,6 @@ namespace TNovBIMUtils
         private bool _SS = true;
         public bool SS { get => _SS; set { _SS = value; OnPropertyChanged(); } }
 
-        public BimExportViewModel(IEnumerable<string> existingModels)
-        {
-            List<string> filePaths = File.ReadAllLines(nova.novaserver + "_TNov/RS.txt").ToList();
-            Nodes = TreeBuilder.BuildTree(filePaths, existingModels);
-        }
         public event EventHandler CloseRequest;
         private void RaiseCloseRequest()
         {
@@ -74,6 +69,11 @@ namespace TNovBIMUtils
         void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+        }
+        public void BuildTree(IEnumerable<string> existingModels, string configPath)
+        {
+            List<string> filePaths = File.ReadAllLines(configPath + "RS.txt").ToList();
+            Nodes = TreeBuilder.BuildTree(filePaths, existingModels);
         }
 
 

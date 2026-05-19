@@ -56,30 +56,6 @@ namespace TNovBIMUtils
         {
             rs.IsChecked = true;
             
-            /*
-            RevitServerViewModel viewModel2 = new RevitServerViewModel(links0);
-            var wpfview = new RevitServer(viewModel2);
-            viewModel2.CloseRequest += (s, ea) => wpfview.Close();
-            bool? ok = wpfview.ShowDialog();
-            if (ok != null && ok == true)
-            {
-                string text = "";
-                if (viewModel2.Nodes.Count > 0)
-                {
-                    List<Node> allNodes = GetAllNodes(viewModel2.Nodes).ToList();
-                    foreach (var node in allNodes)
-                    {
-                        if (node.IsChecked && node.IsModel && node.IsLocked == false) text += @"RSN:\\" + nova.revitserver + @"\" + node.Path + "|";
-                    }
-                    
-                }
-                if (text.Length > 0)
-                {
-                    text = text.Substring(0, text.Length - 1);
-                    textBox1RS.Text = text;
-                    RSPath = text;
-                }
-            }*/
         }
         
         private void browseButton2_Click(object sender, RoutedEventArgs e)

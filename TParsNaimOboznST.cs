@@ -52,14 +52,12 @@ namespace TNovBIMUtils
             string docNameUserName = "_" + userName; docName = docName.Replace(docNameUserName, "");
             docName = docName.Replace(",", "");
             #endregion
-            #region Журнал
-            string TNovClassName = DBCommandName;
-            //проверка подключения, запись в журнал
-            if (ServerUtils.CheckConnection(TNovClassName, TNovVersion) == false) return Result.Failed;
-            #endregion
+            
+            TNovConfig config = TNovConfigLoad.LoadConfig(DBCommandName, TNovVersion); if (config == null) return Result.Failed;
+            
             #region Настройки логов
             // создание log - файла
-            Logger.Initialize(TNovClassName, dateTime, TNovVersion);
+            Logger.Initialize(DBCommandName, dateTime, TNovVersion);
 
             var viewModel0 = new AppVersionViewModel();
 

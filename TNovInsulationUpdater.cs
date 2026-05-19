@@ -32,7 +32,8 @@ namespace TNovBIMUtils
             Document doc = data.GetDocument();
 
             //проверка подключения к серверу
-            string usagefilePath = nova.novaserver + "_TNov/usage.txt";
+            TNovConfig config = TNovConfigLoad.LoadConfig();
+            string usagefilePath = config.ServerPath + "usage.txt";
             bool servercheck = File.Exists(usagefilePath);
 
             if (servercheck)

@@ -30,17 +30,25 @@ namespace TNovBIMUtils
         }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            string TNovClassName = "Хосты изоляции"; DateTime dateTime = DateTime.Now; string TNovVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            #region Исходные
+            DateTime dateTime = DateTime.Now;
+            string TNovVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            string DBCommandName = "Хосты изоляции";
             //подключение приложения и документа
             if (RevitAPI.UiApplication == null) { RevitAPI.Initialize(commandData); }
             UIDocument uidoc = RevitAPI.UiDocument; Document doc = RevitAPI.Document;
             UIApplication uiApp = RevitAPI.UiApplication; Autodesk.Revit.ApplicationServices.Application rvtApp = uiApp.Application;
+            string docName = doc.Title.ToString(); docName = docName.Replace(",", " ");
+            string userName = rvtApp.Username; userName = userName.Replace(",", "");
+            string docNameUserName = "_" + userName; docName = docName.Replace(docNameUserName, "");
+            docName = docName.Replace(",", "");
+            #endregion
 
-            //проверка подключения, запись в журнал
-            if(ServerUtils.CheckConnection(TNovClassName, TNovVersion)==false) return Result.Failed;
+            TNovConfig config = TNovConfigLoad.LoadConfig(DBCommandName, TNovVersion); if (config == null) return Result.Failed;
 
+            #region Настройки логов
             // создание log - файла
-            Logger.Initialize(TNovClassName,dateTime,TNovVersion);
+            Logger.Initialize(DBCommandName, dateTime, TNovVersion);
 
             var viewModel0 = new AppVersionViewModel();
 
@@ -59,8 +67,9 @@ namespace TNovBIMUtils
                 bool? qok = qwpfview.ShowDialog();
                 if (qok != null && qok == true) { Logger.TurnOffExtendedLogs(); } else Logger.Log("Расширенные логи вкл", 2);
             }
+            #endregion
 
-            //сбор элементов
+# region Сбор элементов
             List<Element> VnIsolVozd = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_DuctLinings)
                     .WhereElementIsNotElementType()
                     .Cast<Element>()
@@ -76,6 +85,7 @@ namespace TNovBIMUtils
 
             List<ElementId> ids = new List<ElementId>();
             foreach (var elem in VnIsolVozd) ids.Add(elem.Id); foreach (var elem in IsolVozd) ids.Add(elem.Id); foreach (var elem in IsolTrub) ids.Add(elem.Id);
+            #endregion
 
             int allcount = ids.Count;
 
@@ -91,69 +101,95 @@ namespace TNovBIMUtils
             this.bimExportProgressBar.TNov_ProgressBar.Dispatcher.Invoke<double>((Func<double>)(() => this.bimExportProgressBar.TNov_ProgressBar.Maximum = allcount));
             this.bimExportProgressBar.TNov_ProgressBar.Dispatcher.Invoke<string>((Func<string>)(() => this.bimExportProgressBar.maxvalue.Text = allcount.ToString()));
 
-            //назначение параметров
+            #region Основной код
             using (Transaction transaction = new Transaction(doc))
             {
-                transaction.Start("TNov - Хосты изоляции");
-                Logger.Log("Открываем транзакцию", 1);
-                foreach (ElementId id in ids)
-                {
-                    Element elem = doc.GetElement(id);
-                    if (elem != null & elem.Name != null)
+                try 
+                { 
+                    transaction.Start("TNov - Хосты изоляции");
+                    Logger.Log("Открываем транзакцию", 1);
+                    foreach (ElementId id in ids)
                     {
-                        string value = "Не определено";
-                        Logger.Log("Элемент " + id.IntegerValue.ToString(),2);
-                        if (elem.Category.Id.IntegerValue == -2008122) //изоляция труб PipeInsulation
+                        Element elem = doc.GetElement(id);
+                        if (elem != null & elem.Name != null)
                         {
-                            PipeInsulation pipeInsulation = (PipeInsulation)elem;
-                            if (pipeInsulation.HostElementId != null && pipeInsulation.HostElementId.IntegerValue != -1)
+                            string value = "Не определено";
+                            Logger.Log("Элемент " + id.IntegerValue.ToString(),2);
+                            if (elem.Category.Id.IntegerValue == -2008122) //изоляция труб PipeInsulation
                             {
-                                Element host = doc.GetElement(pipeInsulation.HostElementId);
-                                int hostCatId = host.Category.Id.IntegerValue;
-                                if (hostCatId == -2008049 || hostCatId == -2008055) value = "Фитинги и арматура труб";
-                                else if (hostCatId == -2008044) value = "Трубы";
+                                PipeInsulation pipeInsulation = (PipeInsulation)elem;
+                                if (pipeInsulation.HostElementId != null && pipeInsulation.HostElementId.IntegerValue != -1)
+                                {
+                                    Element host = doc.GetElement(pipeInsulation.HostElementId);
+                                    int hostCatId = host.Category.Id.IntegerValue;
+                                    if (hostCatId == -2008049 || hostCatId == -2008055) value = "Фитинги и арматура труб";
+                                    else if (hostCatId == -2008044) value = "Трубы";
+                                }
                             }
-                        }
-                        else if (elem.Category.Id.IntegerValue == -2008123) //изоляция возд DuctInsulation
-                        {
-                            DuctInsulation ductInsulation = (DuctInsulation)elem;
-                            if (ductInsulation.HostElementId != null && ductInsulation.HostElementId.IntegerValue != -1)
+                            else if (elem.Category.Id.IntegerValue == -2008123) //изоляция возд DuctInsulation
                             {
-                                Element host = doc.GetElement(ductInsulation.HostElementId);
-                                int hostCatId = host.Category.Id.IntegerValue;
-                                if (hostCatId == -2008010 || hostCatId == -2008016) value = "Фитинги и арматура воздуховодов";
-                                else if (hostCatId == -2008000) value = "Воздуховоды";
+                                DuctInsulation ductInsulation = (DuctInsulation)elem;
+                                if (ductInsulation.HostElementId != null && ductInsulation.HostElementId.IntegerValue != -1)
+                                {
+                                    Element host = doc.GetElement(ductInsulation.HostElementId);
+                                    int hostCatId = host.Category.Id.IntegerValue;
+                                    if (hostCatId == -2008010 || hostCatId == -2008016) value = "Фитинги и арматура воздуховодов";
+                                    else if (hostCatId == -2008000) value = "Воздуховоды";
+                                }
                             }
-                        }
-                        else if (elem.Category.Id.IntegerValue == -2008124) //внутр изол возд DuctLining
-                        {
-                            DuctLining ductLining = (DuctLining)elem;
-                            if (ductLining.HostElementId != null && ductLining.HostElementId.IntegerValue != -1)
+                            else if (elem.Category.Id.IntegerValue == -2008124) //внутр изол возд DuctLining
                             {
-                                Element host = doc.GetElement(ductLining.HostElementId);
-                                int hostCatId = host.Category.Id.IntegerValue;
-                                if (hostCatId == -2008010 || hostCatId == -2008016) value = "Фитинги и арматура воздуховодов";
-                                else if (hostCatId == -2008000) value = "Воздуховоды";
+                                DuctLining ductLining = (DuctLining)elem;
+                                if (ductLining.HostElementId != null && ductLining.HostElementId.IntegerValue != -1)
+                                {
+                                    Element host = doc.GetElement(ductLining.HostElementId);
+                                    int hostCatId = host.Category.Id.IntegerValue;
+                                    if (hostCatId == -2008010 || hostCatId == -2008016) value = "Фитинги и арматура воздуховодов";
+                                    else if (hostCatId == -2008000) value = "Воздуховоды";
+                                }
                             }
-                        }
-                        try
-                        {
-                            elem.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set(value);
-                            Logger.Log("   успешно",2);
-                        }
-                        catch (Exception e) { Logger.Log("Элемент " + id.IntegerValue.ToString()+" ошибка: "+e.Message, 4); }
+                            try
+                            {
+                                elem.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set(value);
+                                Logger.Log("   успешно",2);
+                            }
+                            catch (Exception e) { Logger.Log("Элемент " + id.IntegerValue.ToString()+" ошибка: "+e.Message, 4); }
 
-                        PBCount++;
-                        this.bimExportProgressBar.TNov_ProgressBar.Dispatcher.Invoke<double>((Func<double>)(() => this.bimExportProgressBar.TNov_ProgressBar.Value = (double)PBCount));
-                        this.bimExportProgressBar.TNov_ProgressBar.Dispatcher.Invoke<string>((Func<string>)(() => this.bimExportProgressBar.value.Text = PBCount.ToString()));
+                            PBCount++;
+                            this.bimExportProgressBar.TNov_ProgressBar.Dispatcher.Invoke<double>((Func<double>)(() => this.bimExportProgressBar.TNov_ProgressBar.Value = (double)PBCount));
+                            this.bimExportProgressBar.TNov_ProgressBar.Dispatcher.Invoke<string>((Func<string>)(() => this.bimExportProgressBar.value.Text = PBCount.ToString()));
+                        }
                     }
+                    transaction.Commit(); Logger.Log("Закрываем транзакцию", 1);
                 }
-                transaction.Commit(); Logger.Log("Закрываем транзакцию", 1);
+                catch (Exception ex)
+                {
+                    Logger.Log("Ошибка: " + ex.Message, 4);
+                }
+                finally
+                {
+                    CloseProgressBarSafely();
+                }
             }
-            this.bimExportProgressBar.Dispatcher.Invoke((System.Action)(() => this.bimExportProgressBar.Close()));
+            #endregion
 
             Logger.Log("Завершение работы.", 5);
             return Result.Succeeded;
+        }
+        private void CloseProgressBarSafely()
+        {
+            if (bimExportProgressBar != null &&
+                bimExportProgressBar.Dispatcher != null &&
+                !bimExportProgressBar.Dispatcher.HasShutdownStarted)
+            {
+                bimExportProgressBar.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (bimExportProgressBar.IsLoaded)
+                        bimExportProgressBar.Close();
+                    // Завершаем цикл сообщений диспетчера, чтобы поток завершился
+                    Dispatcher.CurrentDispatcher.InvokeShutdown();
+                }));
+            }
         }
     }
 }
