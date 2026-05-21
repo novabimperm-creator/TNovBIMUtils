@@ -82,7 +82,7 @@ namespace TNovBIMUtils
                                 else if (hostCatId == -2008000) value = "Воздуховоды";
                             }
                         }
-                        elem.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set(value);
+                        try{elem.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set(value); } catch { }
                     }
                 }
 

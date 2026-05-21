@@ -89,44 +89,44 @@ namespace TNovBIMUtils
                     if (Param.ParamExistByGuid(TCountParamGuid, elem)) //Т_Количество
                     {
                         Parameter TParam = elem.get_Parameter(TCountParamGuid);
-                        if (TParam.IsReadOnly == false) TParam.Set(TCountValue);
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TCountValue); } catch { } }
                     }
                     if (Param.ParamExistByGuid(TOboznParamGuid, elem)) //Т_Обозначение
                     {
                         Parameter TParam = elem.get_Parameter(TOboznParamGuid);
-                        if (TParam.IsReadOnly == false) TParam.Set(TOboznValue);
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TOboznValue); } catch { } }
                     }
                     if (Param.ParamExistByGuid(TNaimParamGuid, elem)) //Т_Наименование
                     {
                         Parameter TParam = elem.get_Parameter(TNaimParamGuid);
-                        if (TParam.IsReadOnly == false) TParam.Set(TNaimValue);
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TNaimValue); } catch { } }
                     }
                     int categoryId = elem.Category.Id.IntegerValue;
                     if (categoryId == -2008000 || categoryId == -2008010 || categoryId == -2008013 || categoryId == -2008016
                         && Param.ParamExistByGuid(TDimsParamGuid, elem)) //Т_Размер
                     {
                         Parameter TParam = elem.get_Parameter(TDimsParamGuid);
-                        if (TParam.IsReadOnly == false) TParam.Set(TSizeValue);
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TSizeValue); } catch { } }
                     }
                     if (Param.ParamExistByGuid(TManufParamGuid, elem)) //Т_Завод-изготовитель
                     {
                         Parameter TParam = elem.get_Parameter(TManufParamGuid);
-                        if (TParam.IsReadOnly == false) TParam.Set(TManufValue);
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TManufValue); } catch { } }
                     }
                     if (Param.ParamExistByGuid(TEdParamGuid, elem)) //Т_Единица измерения
                     {
                         Parameter TParam = elem.get_Parameter(TEdParamGuid);
-                        if (TParam.IsReadOnly == false) TParam.Set(TEdValue); 
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TEdValue); } catch { } }
                     }
                     if (Param.ParamExistByGuid(TSystemNameParamGuid, elem)) //Т_Имя системы
                     {
                         Parameter TParam = elem.get_Parameter(TSystemNameParamGuid);
-                        if (TParam.IsReadOnly == false) TParam.Set(TSystemValue); 
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TSystemValue); } catch { } }
                     }
                     if (Param.ParamExistByGuid(TStParamGuid, elem)) //Т_Толщина стенки
                     {
                         Parameter TParam = elem.get_Parameter(TStParamGuid);
-                        if (TParam.IsReadOnly == false) TParam.Set(TStValue);
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TStValue); } catch { } }
                     }
                 }
             }

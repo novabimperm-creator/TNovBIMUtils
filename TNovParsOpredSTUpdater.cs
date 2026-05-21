@@ -50,7 +50,7 @@ namespace TNovBIMUtils
                         if (Param.ParamExistByGuid(TOprParamGuid, elem))
                         {
                             Parameter param = elem.get_Parameter(TOprParamGuid); //Т_Определение
-                            if (param.IsReadOnly == false) { param.Set("Лестница"); }
+                            if (param.IsReadOnly == false) { try{param.Set("Лестница"); } catch { } }
                         }
                         continue;
                     }
@@ -59,7 +59,7 @@ namespace TNovBIMUtils
                         if (Param.ParamExistByGuid(TOprParamGuid, elem))
                         {
                             Parameter param = elem.get_Parameter(TOprParamGuid); //Т_Определение
-                            if (param.IsReadOnly == false) { param.Set("Ограждение"); Logger.Log("   назначено Ограждение", 2); }
+                            if (param.IsReadOnly == false) { try{param.Set("Ограждение"); } catch { } }
                         }
                         continue;
                     }
@@ -68,7 +68,7 @@ namespace TNovBIMUtils
                     if (group != null && group.Length > 0 && Param.ParamExistByGuid(TOprParamGuid, elem))
                     {
                         Parameter param = elem.get_Parameter(TOprParamGuid); //Т_Определение
-                        if (param.IsReadOnly == false) param.Set(group);
+                        if (param.IsReadOnly == false) { try { param.Set(group); } catch { } }
                     }
                 }
             }

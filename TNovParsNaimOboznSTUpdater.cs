@@ -99,16 +99,19 @@ namespace TNovBIMUtils
                             break;
                     }
 
-                    if (naimValue != null && naimValue.Length > 0 && Param.ParamExistByGuid(TNaimParamGuid, elem))
-                    {
-                        Parameter param = elem.get_Parameter(TNaimParamGuid); //Т_Наименование
-                        if (param.IsReadOnly == false) { param.Set(naimValue); }
+                    try { 
+                        if (naimValue != null && naimValue.Length > 0 && Param.ParamExistByGuid(TNaimParamGuid, elem))
+                        {
+                            Parameter param = elem.get_Parameter(TNaimParamGuid); //Т_Наименование
+                            if (param.IsReadOnly == false) { param.Set(naimValue); }
+                        }
+                        if (oboznValue != null && oboznValue.Length > 0 && Param.ParamExistByGuid(TOboznParamGuid, elem))
+                        {
+                            Parameter param = elem.get_Parameter(TOboznParamGuid); //Т_Обозначение
+                            if (param.IsReadOnly == false) { param.Set(oboznValue); }
+                        }
                     }
-                    if (oboznValue != null && oboznValue.Length > 0 && Param.ParamExistByGuid(TOboznParamGuid, elem))
-                    {
-                        Parameter param = elem.get_Parameter(TOboznParamGuid); //Т_Обозначение
-                        if (param.IsReadOnly == false) { param.Set(oboznValue); }
-                    }
+                    catch { }
                 }
             }
 

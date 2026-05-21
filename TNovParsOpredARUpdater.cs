@@ -56,7 +56,7 @@ namespace TNovBIMUtils
                         //лестницы и вложенные лестниц
                         if (catId == -2000919 || catId == -2000920 || catId == -2000123 || catId == -2000120)
                         {
-                            param.Set("Лестница"); 
+                            try { param.Set("Лестница"); } catch { }
                             continue;
                         }
                         //ограждения
@@ -72,7 +72,7 @@ namespace TNovBIMUtils
                             }
                             if (value.Length > 0)
                             {
-                                param.Set(value); 
+                                try{param.Set(value); } catch { }
                                 continue;
                             }
                         }
@@ -85,7 +85,7 @@ namespace TNovBIMUtils
                             else value = "Отделка";
                             if (value.Length > 0)
                             {
-                                param.Set(value);
+                                try{param.Set(value); } catch { }
                                 continue;
                             }
                         }
@@ -96,14 +96,14 @@ namespace TNovBIMUtils
                             else if (gmValue.Contains("Кровл") || type.StartsWith("Кровл")) value = "Кровля";
                             if (value.Length > 0)
                             {
-                                param.Set(value); 
+                                try{param.Set(value); } catch { }
                                 continue;
                             }
                         }
                         //ребра плит
                         if (catId == -2001392)
                         {
-                            param.Set("Элемент фасонный"); 
+                            try{param.Set("Элемент фасонный"); } catch { }
                             continue;
                         }
                         //стены
@@ -140,14 +140,14 @@ namespace TNovBIMUtils
                             }
                             if (value.Length > 0)
                             {
-                                param.Set(value); 
+                                try{param.Set(value); } catch { }
                                 continue;
                             }
                         }
                         //устройства вызова
                         if (catId == -2008077)
                         {
-                            param.Set("Фасад"); 
+                            try{param.Set("Фасад"); } catch { }
                             continue;
                         }
                         //общие правила для оставшихся элементов - по имени семейства и далее
@@ -198,7 +198,7 @@ namespace TNovBIMUtils
                             if (family.Contains("Ворота")) value = "Ворота";
                             if (value.Length > 0)
                             {
-                                param.Set(value); 
+                                try{param.Set(value); } catch { }
                                 continue;
                             }
                         }
@@ -214,7 +214,7 @@ namespace TNovBIMUtils
                         if (gmValue.Contains("Лестн") || type.Contains("Лестн")) value = "Лестница";
                         if (gmValue.Contains("Откос") || type.Contains("Откос")) value = "Откос";
 
-                        param.Set(value);
+                        try{param.Set(value); } catch { }
 
                     }
                 }
