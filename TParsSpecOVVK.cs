@@ -222,7 +222,7 @@ namespace TNovBIMUtils
                             Parameter TParam = elem.get_Parameter(TStParamGuid);
                             if (TParam.IsReadOnly == false)
                             {
-                                TParam.Set(TStValue.ToString()); Logger.Log("   толщ ст: " + TStValue.ToString(), 2);
+                                TParam.Set(TStValue.ToString().Replace(',', '.')); Logger.Log("   толщ ст: " + TStValue.ToString().Replace(',', '.'), 2);
                             }
                         }
                         PBCount++;

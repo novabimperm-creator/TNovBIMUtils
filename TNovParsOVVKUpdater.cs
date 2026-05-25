@@ -126,7 +126,7 @@ namespace TNovBIMUtils
                     if (Param.ParamExistByGuid(TStParamGuid, elem)) //Т_Толщина стенки
                     {
                         Parameter TParam = elem.get_Parameter(TStParamGuid);
-                        if (TParam.IsReadOnly == false) {try{TParam.Set(TStValue.ToString()); } catch { } }
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TStValue.ToString().Replace(',','.')); } catch { } }
                     }
                 }
             }
