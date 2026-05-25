@@ -207,6 +207,7 @@ namespace TNovBIMUtils
             this.ProgressBar.TNov_ProgressBar.Dispatcher.Invoke<double>((Func<double>)(() => this.ProgressBar.TNov_ProgressBar.Maximum = allcount));
             this.ProgressBar.TNov_ProgressBar.Dispatcher.Invoke<string>((Func<string>)(() => this.ProgressBar.maxvalue.Text = allcount.ToString()));
 
+            bool unhandledError = false;
             #region Основной код
             using (Transaction transaction = new Transaction(doc))
             {
@@ -409,7 +410,7 @@ namespace TNovBIMUtils
                 catch (Exception ex)
                 {
                     Logger.Log("Ошибка: " + ex.Message, 4);
-
+                    unhandledError = true;
                     new InfoWindow280("Ошибка: " + ex.Message).ShowDialog();
                 }
                 finally
@@ -419,7 +420,11 @@ namespace TNovBIMUtils
             }
             #endregion
 
-
+            if (unhandledError)
+            {
+                Logger.Log("Завершение работы с ошибками.", 4);
+                return Result.Succeeded;
+            }
             Logger.Log("Завершение работы.", 5);
             return Result.Succeeded;
         }

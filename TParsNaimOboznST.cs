@@ -190,7 +190,7 @@ namespace TNovBIMUtils
             ProjectInfo projectInfo = doc.ProjectInformation;
             string projectCodeValue = ""; try { projectCodeValue = projectInfo.get_Parameter(NProjectCodeParamGuid)?.AsString(); } catch { Logger.Log("В проекте отсутствует параметр Шифр проекта", 4); }
 
-
+            bool unhandledError = false;
             #region Основной код
             using (Transaction transaction = new Transaction(doc))
             {
@@ -276,6 +276,7 @@ namespace TNovBIMUtils
                 {
                     Logger.Log("Ошибка: " + ex.Message, 4);
                     new InfoWindow280("Ошибка: " + ex.Message).ShowDialog();
+                    unhandledError = true;
                 }
                 finally
                 {
@@ -283,7 +284,11 @@ namespace TNovBIMUtils
                 }
             }
             #endregion
-            
+            if (unhandledError)
+            {
+                Logger.Log("Завершение работы с ошибками.", 4);
+                return Result.Succeeded;
+            }
             Logger.Log("Завершение работы.", 5);
             return Result.Succeeded;
         }
