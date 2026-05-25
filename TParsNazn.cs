@@ -119,24 +119,36 @@ namespace TNovBIMUtils
             Guid TNaznParamGuid = new Guid("2a73f7b8-05e7-410a-b22a-66498e315df4"); //Т_Назначение
             Guid NOtdRoomParamGuid = new Guid("8b9d4aff-a6c8-4ad5-b0f5-442f2b87c765"); //N_Отделка.Помещение
 
-            
-            Element testRoom = rooms.First();
-            Element testWall = walls.First();
-            Element testFloor = floors.First();
-            Element testCeiling = ceilings.First();
-            
-            // проверка наличия Т параметров
-            bool tPar1Exist = true; bool tPar2Exist = true;
 
-            if (Param.ParamExistByGuid(TPolozhParamGuid, testRoom) == false ||
-                Param.ParamExistByGuid(TPolozhParamGuid, testWall) == false ||
-                Param.ParamExistByGuid(TPolozhParamGuid, testFloor) == false ||
-                Param.ParamExistByGuid(TPolozhParamGuid, testCeiling) == false) tPar1Exist = false;
-            if (Param.ParamExistByGuid(TNaznParamGuid, testRoom) == false ||
-                Param.ParamExistByGuid(TNaznParamGuid, testWall) == false ||
-                Param.ParamExistByGuid(TNaznParamGuid, testFloor) == false ||
-                Param.ParamExistByGuid(TNaznParamGuid, testCeiling) == false) tPar2Exist = false;
-            if(tPar1Exist == false && tPar2Exist == false)
+            // Безопасно берём первый элемент — если коллекция пуста, получим null
+            Element testRoom = rooms?.FirstOrDefault();
+            Element testWall = walls?.FirstOrDefault();
+            Element testFloor = floors?.FirstOrDefault();
+            Element testCeiling = ceilings?.FirstOrDefault();
+
+            // проверка наличия Т параметров
+            bool tPar1Exist = true;
+            bool tPar2Exist = true;
+
+            // Для параметра Т_Положение: если элемент существует, проверяем наличие параметра.
+            if ((testRoom != null && !Param.ParamExistByGuid(TPolozhParamGuid, testRoom)) ||
+                (testWall != null && !Param.ParamExistByGuid(TPolozhParamGuid, testWall)) ||
+                (testFloor != null && !Param.ParamExistByGuid(TPolozhParamGuid, testFloor)) ||
+                (testCeiling != null && !Param.ParamExistByGuid(TPolozhParamGuid, testCeiling)))
+            {
+                tPar1Exist = false;
+            }
+
+            // Аналогично для параметра Т_Назначение
+            if ((testRoom != null && !Param.ParamExistByGuid(TNaznParamGuid, testRoom)) ||
+                (testWall != null && !Param.ParamExistByGuid(TNaznParamGuid, testWall)) ||
+                (testFloor != null && !Param.ParamExistByGuid(TNaznParamGuid, testFloor)) ||
+                (testCeiling != null && !Param.ParamExistByGuid(TNaznParamGuid, testCeiling)))
+            {
+                tPar2Exist = false;
+            }
+
+            if (tPar1Exist == false && tPar2Exist == false)
             {
                 Logger.Log("Отсутствует целевой параметр Т_Назначение или Т_Положение в проекте. Завершение работы.", 4);
                 new InfoWindow280("Отсутствует целевой параметр Т_Назначение или Т_Положение в проекте!").ShowDialog();
