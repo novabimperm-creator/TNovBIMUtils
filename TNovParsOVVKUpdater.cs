@@ -83,13 +83,13 @@ namespace TNovBIMUtils
                     string TSystemValue = Param.GetStringParamValue(doc, adskGparamGuid, elem);
 
                     //Т_Толщина стенки
-                    string TStValue = Param.GetStringParamValue(doc, adskTstParamGuid, elem);
+                    double TStValue = Param.GetDoubleParamValue(doc, adskTstParamGuid, elem)*304.8;
 
                     //Назначение параметров
                     if (Param.ParamExistByGuid(TCountParamGuid, elem)) //Т_Количество
                     {
                         Parameter TParam = elem.get_Parameter(TCountParamGuid);
-                        if (TParam.IsReadOnly == false) {try{TParam.Set(TCountValue); } catch { } }
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TCountValue).ToString(); } catch { } }
                     }
                     if (Param.ParamExistByGuid(TOboznParamGuid, elem)) //Т_Обозначение
                     {
@@ -126,7 +126,7 @@ namespace TNovBIMUtils
                     if (Param.ParamExistByGuid(TStParamGuid, elem)) //Т_Толщина стенки
                     {
                         Parameter TParam = elem.get_Parameter(TStParamGuid);
-                        if (TParam.IsReadOnly == false) {try{TParam.Set(TStValue); } catch { } }
+                        if (TParam.IsReadOnly == false) {try{TParam.Set(TStValue.ToString()); } catch { } }
                     }
                 }
             }
