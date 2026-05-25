@@ -127,6 +127,7 @@ namespace TNovBIMUtils
                     {
                         
                         Element elem = doc.GetElement(id); Logger.Log("Элемент " + id.IntegerValue.ToString(), 2);
+                        if(elem==null) continue;
                         if (Param.ParamExistByGuid(NTParamsNotSetParamGuid, elem) && elem.get_Parameter(NTParamsNotSetParamGuid).AsDouble() == 1)
                         {
                             Logger.Log("   пропуск", 2); continue;
@@ -154,7 +155,7 @@ namespace TNovBIMUtils
                         string TSystemValue = Param.GetStringParamValue(doc, adskGparamGuid, elem);
 
                         //Т_Толщина стенки
-                        string TStValue = Param.GetStringParamValue(doc, adskTstParamGuid, elem);
+                        double TStValue = Param.GetDoubleParamValue(doc, adskTstParamGuid, elem);
 
                         //Назначение параметров
                         if (Param.ParamExistByGuid(TCountParamGuid, elem)) //Т_Количество
@@ -162,7 +163,7 @@ namespace TNovBIMUtils
                             Parameter TParam = elem.get_Parameter(TCountParamGuid);
                             if (TParam.IsReadOnly == false)
                             {
-                                TParam.Set(TCountValue); Logger.Log("   кол-во: " + TCountValue.ToString(), 2);
+                                TParam.Set(TCountValue.ToString()); Logger.Log("   кол-во: " + TCountValue.ToString(), 2);
                             }
                         }
                         if (Param.ParamExistByGuid(TOboznParamGuid, elem)) //Т_Обозначение
@@ -170,7 +171,7 @@ namespace TNovBIMUtils
                             Parameter TParam = elem.get_Parameter(TOboznParamGuid);
                             if (TParam.IsReadOnly == false)
                             {
-                                TParam.Set(TOboznValue); Logger.Log("   обозн: " + TOboznValue.ToString(), 2);
+                                TParam.Set(TOboznValue); Logger.Log("   обозн: " + TOboznValue, 2);
                             }
                         }
                         if (Param.ParamExistByGuid(TNaimParamGuid, elem)) //Т_Наименование
@@ -178,7 +179,7 @@ namespace TNovBIMUtils
                             Parameter TParam = elem.get_Parameter(TNaimParamGuid);
                             if (TParam.IsReadOnly == false)
                             {
-                                TParam.Set(TNaimValue); Logger.Log("   наим: " + TNaimValue.ToString(), 2);
+                                TParam.Set(TNaimValue); Logger.Log("   наим: " + TNaimValue, 2);
                             }
                         }
                         int categoryId = elem.Category.Id.IntegerValue;
@@ -188,7 +189,7 @@ namespace TNovBIMUtils
                             Parameter TParam = elem.get_Parameter(TDimsParamGuid);
                             if (TParam.IsReadOnly == false)
                             {
-                                TParam.Set(TSizeValue); Logger.Log("   размер: " + TSizeValue.ToString(), 2);
+                                TParam.Set(TSizeValue); Logger.Log("   размер: " + TSizeValue, 2);
                             }
                         }
                         if (Param.ParamExistByGuid(TManufParamGuid, elem)) //Т_Завод-изготовитель
@@ -196,7 +197,7 @@ namespace TNovBIMUtils
                             Parameter TParam = elem.get_Parameter(TManufParamGuid);
                             if (TParam.IsReadOnly == false)
                             {
-                                TParam.Set(TManufValue); Logger.Log("   завод: " + TManufValue.ToString(), 2);
+                                TParam.Set(TManufValue); Logger.Log("   завод: " + TManufValue, 2);
                             }
                         }
                         if (Param.ParamExistByGuid(TEdParamGuid, elem)) //Т_Единица измерения
@@ -204,7 +205,7 @@ namespace TNovBIMUtils
                             Parameter TParam = elem.get_Parameter(TEdParamGuid);
                             if (TParam.IsReadOnly == false)
                             {
-                                TParam.Set(TEdValue); Logger.Log("   ед изм: " + TEdValue.ToString(), 2);
+                                TParam.Set(TEdValue); Logger.Log("   ед изм: " + TEdValue, 2);
                             }
                         }
                         if (Param.ParamExistByGuid(TSystemNameParamGuid, elem)) //Т_Имя системы
@@ -212,7 +213,7 @@ namespace TNovBIMUtils
                             Parameter TParam = elem.get_Parameter(TSystemNameParamGuid);
                             if (TParam.IsReadOnly == false)
                             {
-                                TParam.Set(TSystemValue); Logger.Log("   имя системы: " + TSystemValue.ToString(), 2);
+                                TParam.Set(TSystemValue); Logger.Log("   имя системы: " + TSystemValue, 2);
                             }
                         }
                         if (Param.ParamExistByGuid(TStParamGuid, elem)) //Т_Толщина стенки
@@ -220,7 +221,7 @@ namespace TNovBIMUtils
                             Parameter TParam = elem.get_Parameter(TStParamGuid);
                             if (TParam.IsReadOnly == false)
                             {
-                                TParam.Set(TStValue); Logger.Log("   толщ ст: " + TStValue.ToString(), 2);
+                                TParam.Set(TStValue.ToString()); Logger.Log("   толщ ст: " + TStValue.ToString(), 2);
                             }
                         }
                         PBCount++;
@@ -235,6 +236,7 @@ namespace TNovBIMUtils
                 catch (Exception ex)
                 {
                     Logger.Log("Ошибка: " + ex.Message, 4);
+                    new InfoWindow280("Ошибка: " + ex.Message).ShowDialog();
                 }
                 finally
                 {

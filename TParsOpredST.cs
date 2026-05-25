@@ -259,6 +259,8 @@ namespace TNovBIMUtils
                 catch (Exception ex)
                 {
                     Logger.Log("Ошибка: " + ex.Message, 4);
+
+                    new InfoWindow280("Ошибка: " + ex.Message).ShowDialog();
                 }
                 finally
                 {
