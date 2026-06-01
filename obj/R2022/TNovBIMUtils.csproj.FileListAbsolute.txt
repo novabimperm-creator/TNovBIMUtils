@@ -1,0 +1,15 @@
+\\fs-nova\Distr\0.For Admin\_TNov\build\2022\TNovBIMUtils.dll.config
+\\fs-nova\Distr\0.For Admin\_TNov\build\2022\TNovBIMUtils.dll
+\\fs-nova\Distr\0.For Admin\_TNov\build\2022\TNovBIMUtils.pdb
+Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.csproj.AssemblyReference.cache
+Z:\DEV\TNovBIMUtils\obj\R2022\BimExportWPF.g.cs
+Z:\DEV\TNovBIMUtils\obj\R2022\RevitServer.g.cs
+Z:\DEV\TNovBIMUtils\obj\R2022\GeneratedInternalTypeHelper.g.cs
+Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils_MarkupCompile.cache
+Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils_MarkupCompile.lref
+Z:\DEV\TNovBIMUtils\obj\R2022\BimExportWPF.baml
+Z:\DEV\TNovBIMUtils\obj\R2022\RevitServer.baml
+Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.g.resources
+Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.csproj.CoreCompileInputs.cache
+Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.dll
+Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.pdb

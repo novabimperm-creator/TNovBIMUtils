@@ -44,8 +44,11 @@ namespace TNovBIMUtils
 
             // шифр проекта
             ProjectInfo projectInfo = doc.ProjectInformation;
-            string projectCodeValue = ""; try { projectCodeValue = projectInfo.get_Parameter(NProjectCodeParamGuid)?.AsString(); } catch { }
-
+            string projectCodeValue = "";
+            if (projectInfo != null)
+            {
+                try { projectCodeValue = projectInfo.get_Parameter(NProjectCodeParamGuid)?.AsString(); } catch { }
+            }
 
             string docName = doc.Title.ToString();
             if (docName.Contains("-КЖ") || docName.Contains("_КЖ") || docName.Contains("-КР-") || docName.Contains("_КР_"))
@@ -56,20 +59,18 @@ namespace TNovBIMUtils
                     if (elem == null) continue;
                     if (Param.ParamExistByGuid(NTParamsNotSetParamGuid, elem) && elem.get_Parameter(NTParamsNotSetParamGuid).AsDouble() == 1) continue;
 
-                    int catId = elem.Category.Id.IntegerValue;
-
                     string naimValue = ""; string oboznValue = "";
 
                     //сценарии: 1 - заводское изделие, 2 - индив изделие, 3 - конструкция
                     int scenario = 3;
                     //считываем исходные параметры либо с экз, либо с типа
-                    string NOboznParamValue = GetTextParamValue(doc, elem, NOboznParamGuid); 
-                    string NNaimParamValue = GetTextParamValue(doc, elem, NNaimParamGuid); 
-                    string adskCMarkParamValue = GetTextParamValue(doc, elem, adskCMarkParamGuid); 
-                    string adskIzdMarkParamValue = GetTextParamValue(doc, elem, adskIzdMarkParamGuid); 
-                    string adskSheetSetParamValue = GetTextParamValue(doc, elem, adskSheetSetParamGuid); 
+                    string NOboznParamValue = Param.GetStringParamValue(doc, NOboznParamGuid, elem); 
+                    string NNaimParamValue = Param.GetStringParamValue(doc, NNaimParamGuid, elem); 
+                    string adskCMarkParamValue = Param.GetStringParamValue(doc, adskCMarkParamGuid, elem); 
+                    string adskIzdMarkParamValue = Param.GetStringParamValue(doc, adskIzdMarkParamGuid, elem); 
+                    string adskSheetSetParamValue = Param.GetStringParamValue(doc, adskSheetSetParamGuid, elem); 
                     if (adskSheetSetParamValue.Length > 0) adskSheetSetParamValue = "-" + adskSheetSetParamValue;
-                    string adskElemSheetNumberParamValue = GetTextParamValue(doc, elem, adskElemSheetNumberParamGuid); 
+                    string adskElemSheetNumberParamValue = Param.GetStringParamValue(doc, adskElemSheetNumberParamGuid, elem); 
                     if (adskElemSheetNumberParamValue.Length > 0) adskElemSheetNumberParamValue = " л. " + adskElemSheetNumberParamValue;
                     //группа модели
                     string gmValue = ""; ElementId typeId = elem.GetTypeId();
@@ -117,133 +118,7 @@ namespace TNovBIMUtils
 
             
         }
-        String MarkGroup(in Element elem, in Document doc)
-        {
-            string mark = "-";
-            if (Param.ParamExistByGuid(adskCMarkParamGuid, elem) && elem.get_Parameter(adskCMarkParamGuid).HasValue)
-            {
-                mark = elem.get_Parameter(adskCMarkParamGuid).AsString(); 
-            }
-
-            string group = "";
-            if (mark.StartsWith("Фп") || mark.StartsWith("Рп") || mark.StartsWith("Фм") || mark.StartsWith("Рм") || mark.StartsWith("Рл"))
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Фундамент");
-            }
-            else if (mark.StartsWith("Пл") || mark.StartsWith("Пп"))
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Плита перекрытия");
-            }
-            else if (mark.StartsWith("Пб"))
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Плита по грунту");
-            }
-            else if (mark.StartsWith("Пр"))
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Приямок");
-            }
-            else if (mark.StartsWith("Кл"))
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Колонна");
-            }
-            else if (mark.StartsWith("Пм"))
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Пилон");
-            }
-            else if (mark.StartsWith("Дж") || mark.StartsWith("Мс"))
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Стена");
-            }
-            else if (mark.StartsWith("Бм"))
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Балка");
-            }
-            else if (mark.StartsWith("Лм") || mark.StartsWith("Лп") || mark.StartsWith("Лк"))
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Лестница");
-            }
-            else if (mark.StartsWith("Пт"))
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Парапет");
-            }
-            else //прочие марки (Км и т.д.) либо пустые марки
-            {
-                if (elem.Category.Id.IntegerValue.Equals(-2001300))
-                {
-                    ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Фундамент");
-                }
-                if (elem.Category.Id.IntegerValue.Equals(-2000032))
-                {
-                    ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Плита перекрытия");
-                }
-                if (elem.Category.Id.IntegerValue.Equals(-2000011))
-                {
-                    ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Стена");
-                }
-                if (elem.Category.Id.IntegerValue.Equals(-2000120))
-                {
-                    ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1) group = ParseTypeST(typeId, doc, "Лестница");
-                }
-            }
-
-            return group;
-        }
-
-        String ParseTypeST(in ElementId typeId, in Document doc, in string OpredValue)
-        {
-            string group = "";
-            Element type = doc.GetElement(typeId);
-            //подготовка, термо, гидро, сваи, лестницы, галтели
-            if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue) //условие исходя из группы модели
-            {
-                string gm = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString(); 
-                if (gm.Contains("Подготовка") || gm.Contains("Подбетонка")) group = "Подготовка";
-                if (gm.Contains("Термо")) group = "Термовкладыш";
-                if (gm.Contains("Свая")) group = "Свая";
-                if (gm.Contains("Лестн")) group = "Лестница";
-                if (gm.Contains("Галтель")) group = "Фундамент";
-            }
-            else //альтернативное исходя из имени типа
-            {
-                if (type.Name.Contains("Подготовка") || type.Name.Contains("Подбетонка")) group = "Подготовка";
-                if (type.Name.Contains("Термо")) group = "Термовкладыш";
-                if (type.Name.Contains("ГИ") || type.Name.Contains("Гидроиз")) group = "Гидроизоляция";
-                if (type.Name.Contains("Фунд")) group = "Фундамент";
-            }
-            //основная конструкция (бетон)
-            if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue) //условие исходя из группы модели
-            {
-                string gm = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString();
-                if (gm.Contains("Бетон") || gm.Contains("Бетон")) group = OpredValue;
-            }
-            else //альтернативное исходя из имени типа
-            {
-                if (type.Name.Contains("Бетон") || type.Name.Contains("Бетон")) group = OpredValue;
-            }
-            //рампа
-            if (type.Name.Contains("Рампа") || type.Name.Contains("рампа")) group = "Рампа"; 
-
-
-            return group;
-        }
-        String GetTextParamValue(in Document doc, in Element elem, in Guid paramGuid)
-        {
-            string paramValue = "";
-            Element elem1 = doc.GetElement(elem.Id);
-            if (Param.ParamExistByGuid(paramGuid, elem) == false)
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1)
-                {
-                    Element type = doc.GetElement(typeId);
-                    if (Param.ParamExistByGuid(paramGuid, type)) elem1 = doc.GetElement(type.Id);
-                }
-            }
-            if (Param.ParamExistByGuid(paramGuid, elem1) && elem1.get_Parameter(paramGuid).HasValue)
-            {
-                paramValue = elem1.get_Parameter(paramGuid).AsString();
-            }
-            return paramValue;
-        }
+        
         String ConstructionType(in string mark)
         {
             string type = "";

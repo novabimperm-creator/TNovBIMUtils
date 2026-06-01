@@ -214,13 +214,13 @@ namespace TNovBIMUtils
                         //сценарии: 1 - заводское изделие, 2 - индив изделие, 3 - конструкция
                         int scenario = 3;
                         //считываем исходные параметры либо с экз, либо с типа
-                        string NOboznParamValue = GetTextParamValue(doc, elem, NOboznParamGuid); Logger.Log("   " + NOboznParamValue, 2);
-                        string NNaimParamValue = GetTextParamValue(doc, elem, NNaimParamGuid); Logger.Log("   " + NNaimParamValue, 2);
-                        string adskCMarkParamValue = GetTextParamValue(doc, elem, adskCMarkParamGuid); Logger.Log("   " + adskCMarkParamValue, 2);
-                        string adskIzdMarkParamValue = GetTextParamValue(doc, elem, adskIzdMarkParamGuid); Logger.Log("   " + adskIzdMarkParamValue, 2);
-                        string adskSheetSetParamValue = GetTextParamValue(doc, elem, adskSheetSetParamGuid); Logger.Log("   " + adskSheetSetParamValue, 2);
+                        string NOboznParamValue = Param.GetStringParamValue(doc, NOboznParamGuid, elem); Logger.Log("   " + NOboznParamValue, 2);
+                        string NNaimParamValue = Param.GetStringParamValue(doc, NNaimParamGuid, elem); Logger.Log("   " + NNaimParamValue, 2);
+                        string adskCMarkParamValue = Param.GetStringParamValue(doc, adskCMarkParamGuid, elem); Logger.Log("   " + adskCMarkParamValue, 2);
+                        string adskIzdMarkParamValue = Param.GetStringParamValue(doc, adskIzdMarkParamGuid, elem); Logger.Log("   " + adskIzdMarkParamValue, 2);
+                        string adskSheetSetParamValue = Param.GetStringParamValue(doc, adskSheetSetParamGuid, elem); Logger.Log("   " + adskSheetSetParamValue, 2);
                         if (adskSheetSetParamValue.Length > 0) adskSheetSetParamValue = "-" + adskSheetSetParamValue;
-                        string adskElemSheetNumberParamValue = GetTextParamValue(doc, elem, adskElemSheetNumberParamGuid); Logger.Log("   " + adskElemSheetNumberParamValue, 2);
+                        string adskElemSheetNumberParamValue = Param.GetStringParamValue(doc, adskElemSheetNumberParamGuid, elem); Logger.Log("   " + adskElemSheetNumberParamValue, 2);
                         if (adskElemSheetNumberParamValue.Length > 0) adskElemSheetNumberParamValue = " л. " + adskElemSheetNumberParamValue;
                         //группа модели
                         string gmValue = ""; ElementId typeId = elem.GetTypeId();
@@ -293,24 +293,6 @@ namespace TNovBIMUtils
             return Result.Succeeded;
         }
 
-        String GetTextParamValue(in Document doc, in Element elem, in Guid paramGuid)
-        {
-            string paramValue = "";
-            Element elem1 = doc.GetElement(elem.Id);
-            if (Param.ParamExistByGuid(paramGuid, elem) == false)
-            {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1)
-                {
-                    Element type = doc.GetElement(typeId);
-                    if (Param.ParamExistByGuid(paramGuid, type)) elem1 = doc.GetElement(type.Id);
-                }
-            }
-            if (Param.ParamExistByGuid(paramGuid, elem1) && elem1.get_Parameter(paramGuid).HasValue)
-            {
-                paramValue = elem1.get_Parameter(paramGuid).AsString();
-            }
-            return paramValue;
-        }
         String ConstructionType(in string mark)
         {
             string type = "";
