@@ -13,3 +13,5 @@ Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.g.resources
 Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.csproj.CoreCompileInputs.cache
 Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.dll
 Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.pdb
+Z:\DEV\TNovBIMUtils\obj\R2022\CdeWPF.baml
+Z:\DEV\TNovBIMUtils\obj\R2022\CdeWPF.g.cs

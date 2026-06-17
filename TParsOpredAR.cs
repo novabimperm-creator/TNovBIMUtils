@@ -232,6 +232,7 @@ namespace TNovBIMUtils
 
                             string gmValue = GetGMValue(doc, elem); string type = GetTypeName(doc, elem);
 
+                            if (elem.Category == null) continue;
                             int catId = elem.Category.Id.IntegerValue;
 
                             //лестницы и вложенные лестниц
@@ -248,7 +249,7 @@ namespace TNovBIMUtils
                                     type.Contains("алкон") || type.Contains("Балк") || type.Contains("Лодж") || type.Contains("лодж")) value = "Фасад";
                                 if (elem is FamilyInstance familyInstance1)
                                 {
-                                    FamilySymbol symbol = familyInstance1.Symbol;
+                                    FamilySymbol symbol = familyInstance1.Symbol; if (symbol == null) continue;
                                     if (symbol.Family.Name.Contains("Окно")) value = "Фасад";
                                 }
                                 if (value.Length > 0)
@@ -335,6 +336,7 @@ namespace TNovBIMUtils
                             if (elem is FamilyInstance familyInstance)
                             {
                                 FamilySymbol symbol = familyInstance.Symbol;
+                                if (familyInstance.Symbol == null) continue;
                                 string family = symbol.Family.Name;
                                 if (family.Contains("pmN.Откос кирпичный")) value = "Стена наружная";
                                 if (family.Contains("pmN.Пол")) value = "Отделка";

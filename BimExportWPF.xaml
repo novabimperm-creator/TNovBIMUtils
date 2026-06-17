@@ -141,7 +141,16 @@
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
                                     <CheckBox BorderBrush="#CCCCCC" x:Name="NWC" IsThreeState="False" IsChecked="{Binding NWC}" Margin="5" Content="Выгрузить NWC" VerticalAlignment="Center" FontWeight="Bold"/>
                                     <CheckBox BorderBrush="#CCCCCC" x:Name="NWCNova" IsThreeState="False" IsChecked="{Binding NWCNova}" Content="с вида Nova (для внутр. проверок раздела)" Margin="5" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock Text="Каталог для NWC:" Margin="5"></TextBlock>
+                                        <ComboBox Width="200" 
+x:Name="NWCbox"
+SelectionChanged="NWCbox_SelectionChanged"
+Margin="5">
+                                        </ComboBox>
+                                    </StackPanel>
                                     <TextBox Name="textBox2" Text="{Binding folder2}" Width="300" Margin="5" MinHeight="25" TextAlignment="Center" TextWrapping="Wrap" />
+                                    
                                     <Button Style="{StaticResource CustomButtonStyle}" Content="Выбрать каталог для NWC" x:Name="browseButton2" Click="browseButton2_Click" Width="200" MinHeight="25" Margin="5" />
                                 </StackPanel>
                             </GroupBox>
@@ -155,7 +164,15 @@
                                 </StackPanel>
                             </GroupBox>
                         </StackPanel>
-
+                        <!-- Кнопки в левом нижнем углу -->
+                        <StackPanel Grid.Column="0" Grid.Row="1" 
+            VerticalAlignment="Bottom" HorizontalAlignment="Left"
+            Margin="5,10,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource CustomButtonStyle}" MinHeight="25" Content="Редактировать список проектов" x:Name="cdeButton" Click="cdeButton_Click" MinWidth="110" Margin="5"/>
+                                <Button Style="{StaticResource CustomButtonStyle}" MinHeight="25" Content="Открыть журнал автоэкспорта" x:Name="autoButton" Click="autoButton_Click" MinWidth="110" Margin="5"/>
+                            </StackPanel>
+                        </StackPanel>
                         <!-- Кнопки в правом нижнем углу -->
                         <StackPanel Grid.Column="1" Grid.Row="1" 
                                     VerticalAlignment="Bottom" HorizontalAlignment="Right"
