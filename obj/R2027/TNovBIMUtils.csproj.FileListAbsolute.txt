@@ -1,0 +1,28 @@
+Z:\DEV\TNovBIMUtils\obj\R2027\TNovBIMUtils.csproj.AssemblyReference.cache
+Z:\DEV\TNovBIMUtils\obj\R2027\CdeWPF.baml
+Z:\DEV\TNovBIMUtils\obj\R2027\BimExportWPF.g.cs
+Z:\DEV\TNovBIMUtils\obj\R2027\RevitServer.g.cs
+Z:\DEV\TNovBIMUtils\obj\R2027\CdeWPF.g.cs
+Z:\DEV\TNovBIMUtils\obj\R2027\GeneratedInternalTypeHelper.g.cs
+Z:\DEV\TNovBIMUtils\obj\R2027\TNovBIMUtils_MarkupCompile.cache
+Z:\DEV\TNovBIMUtils\obj\R2027\TNovBIMUtils_MarkupCompile.lref
+\\fs-nova\Distr\0.For Admin\_TNov\build\2027\runtimes\win-x64\native\WebView2Loader.dll
+\\fs-nova\Distr\0.For Admin\_TNov\build\2027\TNovBIMUtils.deps.json
+\\fs-nova\Distr\0.For Admin\_TNov\build\2027\TNovBIMUtils.dll
+\\fs-nova\Distr\0.For Admin\_TNov\build\2027\TNovBIMUtils.pdb
+Z:\DEV\TNovBIMUtils\obj\R2027\BimExportWPF.baml
+Z:\DEV\TNovBIMUtils\obj\R2027\RevitServer.baml
+Z:\DEV\TNovBIMUtils\obj\R2027\TNovBIMUtils.g.resources
+Z:\DEV\TNovBIMUtils\obj\R2027\TNovBIMUtils.GeneratedMSBuildEditorConfig.editorconfig
+Z:\DEV\TNovBIMUtils\obj\R2027\TNovBIMUtils.csproj.CoreCompileInputs.cache
+Z:\DEV\TNovBIMUtils\obj\R2027\TNovBIMUtils.sourcelink.json
+Z:\DEV\TNovBIMUtils\obj\R2027\TNovBIMU.CCD70317.Up2Date
+Z:\DEV\TNovBIMUtils\obj\R2027\TNovBIMUtils.dll
+Z:\DEV\TNovBIMUtils\obj\R2027\refint\TNovBIMUtils.dll
+Z:\DEV\TNovBIMUtils\obj\R2027\TNovBIMUtils.pdb
+Z:\DEV\TNovBIMUtils\obj\R2027\ref\TNovBIMUtils.dll
+Z:\DEV\_build-test\2027\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build-test\2027\TNovBIMUtils.deps.json
+Z:\DEV\_build-test\2027\TNovBIMUtils.dll
+Z:\DEV\_build-test\2027\TNovBIMUtils.pdb
+Z:\DEV\_build-test\2027\System.Resources.Extensions.dll

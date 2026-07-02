@@ -73,12 +73,19 @@ namespace TNovBIMUtils.Panel13
             if (element is FamilyInstance familyInstance)
             {
                 // Проверяем категорию и наличие коннекторов
-                if (familyInstance.Category != null &&
-                    (familyInstance.Category.Id.IntegerValue == (int)BuiltInCategory.OST_DuctFitting ||
-                     familyInstance.Category.Id.IntegerValue == (int)BuiltInCategory.OST_DuctAccessory ||
-                     familyInstance.Category.Id.IntegerValue == (int)BuiltInCategory.OST_DuctTerminal))
+                if (familyInstance.Category != null) 
                 {
-                    return true;
+#if R2022
+                    int catIdInt = familyInstance.Category.Id.IntegerValue;
+#else
+                    int catIdInt = (int)familyInstance.Category.Id.Value;
+#endif
+                    if (catIdInt == (int)BuiltInCategory.OST_DuctFitting ||
+                     catIdInt == (int)BuiltInCategory.OST_DuctAccessory ||
+                     catIdInt == (int)BuiltInCategory.OST_DuctTerminal)
+                    {
+                        return true;
+                    } 
                 }
             }
             return false;
@@ -110,7 +117,11 @@ namespace TNovBIMUtils.Panel13
             // Если есть прямое подключение к воздуховодам
             if (hasDirectDuctConnection)
             {
+#if R2022
                 string comment = string.Join(",", connectedDuctIds.Select(id => id.IntegerValue));
+#else
+                string comment = string.Join(",", connectedDuctIds.Select(id => id.Value));
+#endif
                 SetCommentParameter(doc, ductConnector, comment);
                 return;
             }
@@ -163,8 +174,12 @@ namespace TNovBIMUtils.Panel13
             // Если нашли воздуховоды через подключенные элементы
             if (connectedDuctIds.Count > 0)
             {
+#if R2022
                 string comment = string.Join(",", connectedDuctIds.Select(id => id.IntegerValue));
-
+#else
+                string comment = string.Join(",", connectedDuctIds.Select(id => id.Value));
+#endif
+                
                 // Записываем комментарий для всех затронутых элементов
                 foreach (Element element in affectedElements)
                 {

@@ -1,4 +1,3 @@
-\\fs-nova\Distr\0.For Admin\_TNov\build\2022\TNovBIMUtils.dll.config
 \\fs-nova\Distr\0.For Admin\_TNov\build\2022\TNovBIMUtils.dll
 \\fs-nova\Distr\0.For Admin\_TNov\build\2022\TNovBIMUtils.pdb
 Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.csproj.AssemblyReference.cache
@@ -15,3 +14,20 @@ Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.dll
 Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.pdb
 Z:\DEV\TNovBIMUtils\obj\R2022\CdeWPF.baml
 Z:\DEV\TNovBIMUtils\obj\R2022\CdeWPF.g.cs
+Z:\DEV\_buildtest\r2022\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_buildtest\r2022\TNovBIMUtils.dll
+Z:\DEV\_buildtest\r2022\TNovBIMUtils.pdb
+Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.GeneratedMSBuildEditorConfig.editorconfig
+Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMUtils.sourcelink.json
+Z:\DEV\TNovBIMUtils\obj\R2022\TNovBIMU.CCD70317.Up2Date
+\\fs-nova\Distr\0.For Admin\_TNov\build\2022\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build-test\2022\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build-test\2022\TNovBIMUtils.dll
+Z:\DEV\_build-test\2022\TNovBIMUtils.pdb
+Z:\DEV\_build-test\2022-classic\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build-test\2022-classic\TNovBIMUtils.dll
+Z:\DEV\_build-test\2022-classic\TNovBIMUtils.pdb
+Z:\DEV\_build-test\2022-fix\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build-test\2022-fix\TNovBIMUtils.dll
+Z:\DEV\_build-test\2022-fix\TNovBIMUtils.pdb
+\\fs-nova\Distr\0.For Admin\_TNov\build\2022\System.Resources.Extensions.dll

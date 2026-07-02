@@ -74,11 +74,19 @@ namespace TNovBIMUtils
                     if (adskElemSheetNumberParamValue.Length > 0) adskElemSheetNumberParamValue = " л. " + adskElemSheetNumberParamValue;
                     //группа модели
                     string gmValue = ""; ElementId typeId = elem.GetTypeId();
-                    if (typeId != null && typeId.IntegerValue != -1)
+                    if (typeId != null)
                     {
-                        Element type = doc.GetElement(typeId);
-                        if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue)
-                            gmValue = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString();
+#if R2022
+                        long typeint = typeId.IntegerValue;
+#else
+                        long typeint = typeId.Value;
+#endif
+                        if (typeint != -1)
+                        {
+                            Element type = doc.GetElement(typeId);
+                            if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue)
+                                gmValue = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString();
+                        }
                     }
                     if (gmValue.Contains("Серия") || gmValue.Contains("ГОСТ")) scenario = 1;
                     else if (adskIzdMarkParamValue.Length > 1) scenario = 2;

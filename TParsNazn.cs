@@ -183,7 +183,12 @@ namespace TNovBIMUtils
                     //помещения
                     foreach (var room in rooms)
                     {
-                        Logger.Log("Помещение " + room.Id.IntegerValue.ToString(), 2);
+#if R2022
+                    long idint =  room.Id.IntegerValue;
+#else
+                        long idint = room.Id.Value;
+#endif
+                        Logger.Log("Помещение " + idint.ToString(), 2);
                         if (room.get_Parameter(NTParamsNotSetParamGuid).AsDouble() == 1)
                         {
                             Logger.Log("   пропуск", 2); continue;
@@ -214,7 +219,12 @@ namespace TNovBIMUtils
                     //элементы
                     foreach (var elem in elems)
                     {
-                        Logger.Log("Элемент " + elem.Id.IntegerValue.ToString(), 2);
+#if R2022
+                    long idint =  elem.Id.IntegerValue;
+#else
+                        long idint = elem.Id.Value;
+#endif
+                        Logger.Log("Элемент " + idint.ToString(), 2);
                         if (Param.ParamExistByGuid(NTParamsNotSetParamGuid, elem) && elem.get_Parameter(NTParamsNotSetParamGuid).AsDouble() == 1)
                         {
                             Logger.Log("   пропуск", 2); continue;

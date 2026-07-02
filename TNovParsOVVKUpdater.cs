@@ -101,7 +101,11 @@ namespace TNovBIMUtils
                         Parameter TParam = elem.get_Parameter(TNaimParamGuid);
                         if (TParam.IsReadOnly == false) {try{TParam.Set(TNaimValue); } catch { } }
                     }
+#if R2022
                     int categoryId = elem.Category.Id.IntegerValue;
+#else
+                    int categoryId = (int)elem.Category.Id.Value;
+#endif
                     if (categoryId == -2008000 || categoryId == -2008010 || categoryId == -2008013 || categoryId == -2008016
                         && Param.ParamExistByGuid(TDimsParamGuid, elem)) //Т_Размер
                     {

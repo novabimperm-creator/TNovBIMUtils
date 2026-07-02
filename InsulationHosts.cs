@@ -116,36 +116,39 @@ namespace TNovBIMUtils
                         if (elem != null & elem.Name != null)
                         {
                             string value = "Не определено";
-                            Logger.Log("Элемент " + id.IntegerValue.ToString(),2);
-                            if (elem.Category.Id.IntegerValue == -2008122) //изоляция труб PipeInsulation
+
+                            Logger.Log("Элемент " + IdLongValue(id).ToString(),2);
+                            long catId = IdLongValue(elem.Category.Id);
+
+                            if (catId == -2008122) //изоляция труб PipeInsulation
                             {
                                 PipeInsulation pipeInsulation = (PipeInsulation)elem;
-                                if (pipeInsulation.HostElementId != null && pipeInsulation.HostElementId.IntegerValue != -1)
+                                if (pipeInsulation.HostElementId != null && IdLongValue(pipeInsulation.HostElementId) != -1)
                                 {
                                     Element host = doc.GetElement(pipeInsulation.HostElementId);
-                                    int hostCatId = host.Category.Id.IntegerValue;
+                                    int hostCatId = (int)IdLongValue(host.Category.Id);
                                     if (hostCatId == -2008049 || hostCatId == -2008055) value = "Фитинги и арматура труб";
                                     else if (hostCatId == -2008044) value = "Трубы";
                                 }
                             }
-                            else if (elem.Category.Id.IntegerValue == -2008123) //изоляция возд DuctInsulation
+                            else if (IdLongValue(elem.Category.Id) == -2008123) //изоляция возд DuctInsulation
                             {
                                 DuctInsulation ductInsulation = (DuctInsulation)elem;
-                                if (ductInsulation.HostElementId != null && ductInsulation.HostElementId.IntegerValue != -1)
+                                if (ductInsulation.HostElementId != null && IdLongValue(ductInsulation.HostElementId) != -1)
                                 {
                                     Element host = doc.GetElement(ductInsulation.HostElementId);
-                                    int hostCatId = host.Category.Id.IntegerValue;
+                                    int hostCatId = (int)IdLongValue(host.Category.Id);
                                     if (hostCatId == -2008010 || hostCatId == -2008016) value = "Фитинги и арматура воздуховодов";
                                     else if (hostCatId == -2008000) value = "Воздуховоды";
                                 }
                             }
-                            else if (elem.Category.Id.IntegerValue == -2008124) //внутр изол возд DuctLining
+                            else if (IdLongValue(elem.Category.Id) == -2008124) //внутр изол возд DuctLining
                             {
                                 DuctLining ductLining = (DuctLining)elem;
-                                if (ductLining.HostElementId != null && ductLining.HostElementId.IntegerValue != -1)
+                                if (ductLining.HostElementId != null && IdLongValue(ductLining.HostElementId) != -1)
                                 {
                                     Element host = doc.GetElement(ductLining.HostElementId);
-                                    int hostCatId = host.Category.Id.IntegerValue;
+                                    int hostCatId = (int)IdLongValue(host.Category.Id);
                                     if (hostCatId == -2008010 || hostCatId == -2008016) value = "Фитинги и арматура воздуховодов";
                                     else if (hostCatId == -2008000) value = "Воздуховоды";
                                 }
@@ -155,7 +158,7 @@ namespace TNovBIMUtils
                                 elem.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set(value);
                                 Logger.Log("   успешно",2);
                             }
-                            catch (Exception e) { Logger.Log("Элемент " + id.IntegerValue.ToString()+" ошибка: "+e.Message, 4); }
+                            catch (Exception e) { Logger.Log("Элемент " + IdLongValue(id).ToString()+" ошибка: "+e.Message, 4); }
 
                             PBCount++;
                             this.bimExportProgressBar.TNov_ProgressBar.Dispatcher.Invoke<double>((Func<double>)(() => this.bimExportProgressBar.TNov_ProgressBar.Value = (double)PBCount));
@@ -175,7 +178,7 @@ namespace TNovBIMUtils
                     CloseProgressBarSafely();
                 }
             }
-            #endregion
+#endregion
 
             if (unhandledError)
             {
@@ -200,6 +203,15 @@ namespace TNovBIMUtils
                     Dispatcher.CurrentDispatcher.InvokeShutdown();
                 }));
             }
+        }
+
+        private long IdLongValue (ElementId id)
+        {
+#if R2022
+            return id.IntegerValue;
+#else
+            return id.Value;
+#endif
         }
     }
 }

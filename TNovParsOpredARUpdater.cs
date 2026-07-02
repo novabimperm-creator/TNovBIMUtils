@@ -50,8 +50,12 @@ namespace TNovBIMUtils
                         Parameter param = elem.get_Parameter(TOprParamGuid); //Т_Определение
 
                         string gmValue = GetGMValue(doc, elem); string type = GetTypeName(doc, elem);
-
-                        int catId = elem.Category.Id.IntegerValue;
+#if R2022
+                        long catId = elem.Category.Id.IntegerValue;
+#else
+                        long catId = elem.Category.Id.Value;
+#endif
+                        
 
                         //лестницы и вложенные лестниц
                         if (catId == -2000919 || catId == -2000920 || catId == -2000123 || catId == -2000120)
@@ -225,20 +229,37 @@ namespace TNovBIMUtils
         String GetGMValue(in Document doc, in Element elem)
         {
             string gmValue = "";
-            ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1)
+            ElementId typeId = elem.GetTypeId(); 
+            if (typeId != null)
             {
-                Element type = doc.GetElement(typeId);
-                if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue) gmValue = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString();
+#if R2022
+                long typeint = typeId.IntegerValue;
+#else
+                long typeint = typeId.Value;
+#endif
+                if (typeint != -1)
+                {
+                    Element type = doc.GetElement(typeId);
+                    if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue) gmValue = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString();
+                }
             }
             return gmValue;
         }
         String GetTypeName(in Document doc, in Element elem)
         {
             string typeName = "";
-            ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1)
+            ElementId typeId = elem.GetTypeId(); if (typeId != null)
             {
-                Element type = doc.GetElement(typeId);
-                typeName = type.Name;
+#if R2022
+                long typeint = typeId.IntegerValue;
+#else
+                long typeint = typeId.Value;
+#endif
+                if (typeint != -1)
+                {
+                    Element type = doc.GetElement(typeId);
+                    typeName = type.Name;
+                }
             }
             return typeName;
         }
@@ -248,10 +269,18 @@ namespace TNovBIMUtils
             Element elem1 = doc.GetElement(elem.Id);
             if (Param.ParamExistByGuid(paramGuid, elem) == false)
             {
-                ElementId typeId = elem.GetTypeId(); if (typeId != null && typeId.IntegerValue != -1)
+                ElementId typeId = elem.GetTypeId(); if (typeId != null)
                 {
-                    Element type = doc.GetElement(typeId);
-                    if (Param.ParamExistByGuid(paramGuid, type)) elem1 = doc.GetElement(type.Id);
+#if R2022
+                long typeint = typeId.IntegerValue;
+#else
+                    long typeint = typeId.Value;
+#endif
+                    if (typeint != -1)
+                    {
+                        Element type = doc.GetElement(typeId);
+                        if (Param.ParamExistByGuid(paramGuid, type)) elem1 = doc.GetElement(type.Id);
+                    }
                 }
             }
             if (Param.ParamExistByGuid(paramGuid, elem1) && elem1.get_Parameter(paramGuid).HasValue)

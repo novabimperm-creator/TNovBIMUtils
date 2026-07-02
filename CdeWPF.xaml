@@ -1,0 +1,49 @@
+﻿<Window x:Class="TNovBIMUtils.CdeWPF"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Редактор CDE.txt" Height="500" Width="800"
+        Closing="Window_Closing">
+    <DockPanel Margin="10">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="Добавить строку" Command="{Binding AddCommand}" Margin="0,0,10,0" Padding="8,3"/>
+            <Button Content="Сохранить" Command="{Binding SaveCommand}" Margin="0,0,10,0" Padding="8,3"/>
+            <Button Content="Закрыть" Click="CloseButton_Click" Padding="8,3"/>
+        </StackPanel>
+
+        <DataGrid ItemsSource="{Binding Entries}" AutoGenerateColumns="False" 
+                  CanUserAddRows="False" CanUserDeleteRows="False"
+                  RowHeaderWidth="0" GridLinesVisibility="Horizontal">
+            <DataGrid.Columns>
+                <!-- Код -->
+                <DataGridTextColumn Header="Код" Binding="{Binding Code, UpdateSourceTrigger=PropertyChanged}" 
+                                    Width="150" MinWidth="100"/>
+
+                <!-- Путь (с кнопкой обзора) -->
+                <DataGridTemplateColumn Header="Путь" Width="*" MinWidth="300">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}" 
+                                         VerticalAlignment="Center" MinWidth="200" Margin="0,0,5,0"/>
+                                <Button Content="Обзор..." 
+                                        Command="{Binding DataContext.BrowseFolderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}" Padding="8,2"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Статус – исправленный выпадающий список -->
+                <DataGridTemplateColumn Header="Статус" Width="120" MinWidth="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.Statuses, RelativeSource={RelativeSource AncestorType=Window}}"
+                                      SelectedItem="{Binding Status, UpdateSourceTrigger=PropertyChanged}"
+                                      IsSynchronizedWithCurrentItem="False"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Window>

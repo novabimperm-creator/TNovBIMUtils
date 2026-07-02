@@ -201,14 +201,22 @@ namespace TNovBIMUtils
 
                     foreach (var id in ids)
                     {
-                        
-                        Element elem = doc.GetElement(id); Logger.Log("Элемент " + id.IntegerValue.ToString(), 2);
+#if R2022
+                    long idint = id.IntegerValue;
+#else
+                        long idint = id.Value;
+#endif
+                        Element elem = doc.GetElement(id); Logger.Log("Элемент " + idint.ToString(), 2);
                         if (elem.get_Parameter(NTParamsNotSetParamGuid).AsDouble() == 1)
                         {
                             Logger.Log("   пропуск", 2); continue;
                         }
-                        int catId = elem.Category.Id.IntegerValue;
-
+#if R2022
+                    int catId = elem.Category.Id.IntegerValue;
+#else
+                        int catId = (int)elem.Category.Id.Value;
+#endif
+                        
                         string naimValue = ""; string oboznValue = "";
 
                         //сценарии: 1 - заводское изделие, 2 - индив изделие, 3 - конструкция
@@ -224,11 +232,19 @@ namespace TNovBIMUtils
                         if (adskElemSheetNumberParamValue.Length > 0) adskElemSheetNumberParamValue = " л. " + adskElemSheetNumberParamValue;
                         //группа модели
                         string gmValue = ""; ElementId typeId = elem.GetTypeId();
-                        if (typeId != null && typeId.IntegerValue != -1)
+                        if (typeId != null)
                         {
-                            Element type = doc.GetElement(typeId);
-                            if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue)
-                                gmValue = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString();
+#if R2022
+                            long longtypeId = typeId.IntegerValue;
+#else
+                            long longtypeId = typeId.Value;
+#endif    
+                            if (longtypeId != -1)
+                            {
+                                Element type = doc.GetElement(typeId);
+                                if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue)
+                                    gmValue = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString();
+                            }
                         }
                         Logger.Log("   " + gmValue, 2);
                         if (gmValue.Contains("Серия") || gmValue.Contains("ГОСТ")) scenario = 1;
