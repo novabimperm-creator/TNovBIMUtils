@@ -26,3 +26,4 @@ Z:\DEV\_build-test\2027\TNovBIMUtils.deps.json
 Z:\DEV\_build-test\2027\TNovBIMUtils.dll
 Z:\DEV\_build-test\2027\TNovBIMUtils.pdb
 Z:\DEV\_build-test\2027\System.Resources.Extensions.dll
+\\fs-nova\Distr\0.For Admin\_TNov\build\2027\System.Resources.Extensions.dll

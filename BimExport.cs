@@ -107,11 +107,12 @@ namespace TNovBIMUtils
             var viewModel = new BimExportViewModel();
             // Десериализация
             string jsonpath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TNovClient/bimexport.json");
-            string jsonText = File.ReadAllText(jsonpath, Encoding.UTF8);
+            
             //if (jsonText.Contains(@"\\\\")) jsonText = jsonText.Replace(@"\\", @"\");
             //jsonText = jsonText.Replace(@"\", "/"); 
             try
             {
+                string jsonText = File.ReadAllText(jsonpath, Encoding.UTF8); 
                 viewModel = JsonConvert.DeserializeObject<BimExportViewModel>(jsonText);
                 viewModel.BuildTree(linksString, config.ServerPath);
                 Logger.Log("Десериализация прошла успешно",1);
