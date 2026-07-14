@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Windows.Interop;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using TNovCommon;
@@ -122,6 +123,7 @@ namespace TNovBIMUtils
                 Logger.Log("Ошибка при десериализации: " + ex.Message,4);
             }
             var wpfview = new BimExportWPF(viewModel, linksString);
+            new WindowInteropHelper(wpfview) { Owner = uiApp.MainWindowHandle };
             
             if (linksString.First()!= "-----") 
             {

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using TNovCommon;
 
 namespace TNovBIMUtils
@@ -17,6 +18,9 @@ namespace TNovBIMUtils
     /// </summary>
     public partial class BimExportWPF : Window
     {
+        private const double BaseWidth = 800;
+        private const double ExtraPanelWidth = 260;
+
         public string initialDirectory = "C:\\";
         public string RSPath = "";
         List<string> links0 = new List<string>();
@@ -68,7 +72,9 @@ namespace TNovBIMUtils
 
         private void browseButton_Click(object sender, RoutedEventArgs e)
         {
-            rvt.IsChecked = true;
+            if (DataContext is BimExportViewModel vm)
+                vm.fromRVT = true;
+
             var dialog = new FolderSelectDialog
             {
                 InitialDirectory = initialDirectory,
@@ -81,8 +87,8 @@ namespace TNovBIMUtils
         }
         private void browseButtonRS_Click(object sender, RoutedEventArgs e)
         {
-            rs.IsChecked = true;
-            
+            if (DataContext is BimExportViewModel vm)
+                vm.fromRS = true;
         }
         
         private void browseButton2_Click(object sender, RoutedEventArgs e)
@@ -118,21 +124,39 @@ namespace TNovBIMUtils
 
         private void textBox1_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-
-        }
-
-        private void Border_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-
         }
 
         private void HelpButton_Click(object sender, RoutedEventArgs e)
         {
-            string commandText = @"https://portal.talan.group/knowledge/proektirovanie/eksportmodeleyvnavisworks/";
+            string commandText = HelpLinks.GetHelpLink("BIM Экспорт");
             var proc = new System.Diagnostics.Process();
             proc.StartInfo.FileName = commandText;
             proc.StartInfo.UseShellExecute = true;
             proc.Start();
+        }
+
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                DragMove();
+        }
+
+        private void ExtraSettingsToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            ExtraColumn.Width = new GridLength(ExtraPanelWidth);
+            ExtraSettingsPanel.Visibility = System.Windows.Visibility.Visible;
+            MinWidth = BaseWidth + ExtraPanelWidth;
+            Width = BaseWidth + ExtraPanelWidth;
+            extSettings_text.Text = "< Дополнительные настройки";
+        }
+
+        private void ExtraSettingsToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ExtraColumn.Width = new GridLength(0);
+            ExtraSettingsPanel.Visibility = System.Windows.Visibility.Collapsed;
+            MinWidth = BaseWidth;
+            Width = BaseWidth;
+            extSettings_text.Text = "Дополнительные настройки >";
         }
 
         private void cdeButton_Click(object sender, RoutedEventArgs e)
@@ -154,6 +178,7 @@ namespace TNovBIMUtils
             {
                 case "BIM":
                     CdeWPF wpfView = new CdeWPF();
+                    wpfView.Owner = this;
                     wpfView.ShowDialog();
                     break;
                 default: 
@@ -191,6 +216,16 @@ namespace TNovBIMUtils
                 new InfoWindow400(autoJournal).ShowDialog();
             }
             else new InfoWindow280("Отсутствует файл логов автоматического экспорта.").ShowDialog();
+        }
+
+        private void textBox2_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        private void AR_Checked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
     class ProjectsBoxItem

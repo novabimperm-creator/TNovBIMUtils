@@ -31,3 +31,11 @@ Z:\DEV\_build-test\2022-fix\runtimes\win-x64\native\WebView2Loader.dll
 Z:\DEV\_build-test\2022-fix\TNovBIMUtils.dll
 Z:\DEV\_build-test\2022-fix\TNovBIMUtils.pdb
 \\fs-nova\Distr\0.For Admin\_TNov\build\2022\System.Resources.Extensions.dll
+Z:\DEV\_build\TNov\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build\TNov\System.Resources.Extensions.dll
+Z:\DEV\_build\TNov\TNovBIMUtils.dll
+Z:\DEV\_build\TNov\TNovBIMUtils.pdb
+Z:\DEV\_build\TNovBIMUtils\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build\TNovBIMUtils\System.Resources.Extensions.dll
+Z:\DEV\_build\TNovBIMUtils\TNovBIMUtils.dll
+Z:\DEV\_build\TNovBIMUtils\TNovBIMUtils.pdb

@@ -34,13 +34,41 @@ namespace TNovBIMUtils
         private bool _RVT = true;
         public bool RVT { get => _RVT; set { _RVT = value; OnPropertyChanged(); } }
         private bool _fromRVT = false;
-        public bool fromRVT { get => _fromRVT; set { _fromRVT = value; OnPropertyChanged(); } }
+        public bool fromRVT
+        {
+            get => _fromRVT;
+            set
+            {
+                if (_fromRVT == value) return;
+                _fromRVT = value;
+                if (value)
+                {
+                    _fromRS = false;
+                    OnPropertyChanged(nameof(fromRS));
+                }
+                OnPropertyChanged();
+            }
+        }
         private bool _fromRS = true;
-        public bool fromRS { get => _fromRS; set { _fromRS = value; OnPropertyChanged(); } }
+        public bool fromRS
+        {
+            get => _fromRS;
+            set
+            {
+                if (_fromRS == value) return;
+                _fromRS = value;
+                if (value)
+                {
+                    _fromRVT = false;
+                    OnPropertyChanged(nameof(fromRVT));
+                }
+                OnPropertyChanged();
+            }
+        }
         private bool _NWC = true;
         public bool NWC { get => _NWC; set { _NWC = value; OnPropertyChanged(); } }
 
-        private bool _NWC2 = true;
+        private bool _NWC2 = false;
         public bool NWC2 { get => _NWC2; set { _NWC2 = value; OnPropertyChanged(); } }
 
         private bool _NWCNova = false;
