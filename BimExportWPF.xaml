@@ -5,8 +5,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:TNovBIMUtils"
         mc:Ignorable="d"
-        MinHeight="720"
-        Height="720"
+        MinHeight="700"
+        Height="700"
         MinWidth="800"
         Width="800"
         WindowStartupLocation="CenterOwner"
@@ -98,7 +98,7 @@
                              Name="textBox1"
                              Text="{Binding folder}"
                              MinWidth="160"
-                             Style="{StaticResource DarkTextBoxStyle}"
+                             Style="{StaticResource DarkCompactTextBoxStyle}"
                              VerticalAlignment="Center"
                              FontSize="11"
                              HorizontalAlignment="Stretch"
@@ -182,7 +182,7 @@
                                       SelectionChanged="NWCbox_SelectionChanged"/>
                             <TextBox Name="textBox2"
                                      Text="{Binding folder2}"
-                                     Style="{StaticResource DarkTextBoxStyle}"
+                                     Style="{StaticResource DarkCompactTextBoxStyle}"
                                      Margin="0,0,0,6"
                                      TextChanged="textBox2_TextChanged"/>
                             <Button Style="{StaticResource SecondaryButtonStyle}"
@@ -206,7 +206,7 @@
                             </ToggleButton>
                             <TextBox Name="textBox3"
                                      Text="{Binding folder3}"
-                                     Style="{StaticResource DarkTextBoxStyle}"
+                                     Style="{StaticResource DarkCompactTextBoxStyle}"
                                      Margin="0,0,0,6"/>
                             <Button Style="{StaticResource SecondaryButtonStyle}"
                                     Content="Выбрать каталог на выдачу"
