@@ -54,14 +54,22 @@ namespace TNovBIMUtils
 
             textBox1.Focus();
             DataContext = viewModel;
-            initialDirectory = viewModel.folder;
+            initialDirectory = FolderPathHelper.Sanitize(viewModel.folder);
             foreach(string link in linksString) links0.Add(link);
         }
 
         private void acceptButton_Click(object sender, RoutedEventArgs e)
         {
+            FlushFolderBindings();
             DialogResult = true;
             this.Close(); // закрытие окна
+        }
+
+        private void FlushFolderBindings()
+        {
+            textBox1.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
+            textBox2.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
+            textBox3.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
         }
 
         private void escButton_Click(object sender, RoutedEventArgs e)
@@ -72,8 +80,10 @@ namespace TNovBIMUtils
 
         private void browseButton_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is BimExportViewModel vm)
-                vm.fromRVT = true;
+            if (!(DataContext is BimExportViewModel vm))
+                return;
+
+            vm.fromRVT = true;
 
             var dialog = new FolderSelectDialog
             {
@@ -82,7 +92,9 @@ namespace TNovBIMUtils
             };
             if (dialog.Show())
             {
-                textBox1.Text = dialog.FileName; textBox1.Focus(); initialDirectory = dialog.FileName;
+                vm.folder = dialog.FileName;
+                initialDirectory = vm.folder;
+                textBox1.Focus();
             }
         }
         private void browseButtonRS_Click(object sender, RoutedEventArgs e)
@@ -98,9 +110,11 @@ namespace TNovBIMUtils
                 InitialDirectory = initialDirectory,
                 Title = "Выберите папку"
             };
-            if (dialog.Show())
+            if (dialog.Show() && DataContext is BimExportViewModel vm)
             {
-                textBox2.Text = dialog.FileName; textBox2.Focus(); initialDirectory = dialog.FileName;
+                vm.folder2 = dialog.FileName;
+                initialDirectory = vm.folder2;
+                textBox2.Focus();
             }
         }
 
@@ -111,9 +125,11 @@ namespace TNovBIMUtils
                 InitialDirectory = initialDirectory,
                 Title = "Выберите папку"
             };
-            if (dialog.Show())
+            if (dialog.Show() && DataContext is BimExportViewModel vm)
             {
-                textBox3.Text = dialog.FileName; textBox3.Focus(); initialDirectory = dialog.FileName;
+                vm.folder3 = dialog.FileName;
+                initialDirectory = vm.folder3;
+                textBox3.Focus();
             }
         }
 
@@ -197,8 +213,9 @@ namespace TNovBIMUtils
             
             if (NWCbox.SelectedItem is ProjectsBoxItem selectedItem)
             {
-                textBox2.Text = selectedItem.Value;
-                initialDirectory = selectedItem.Value;
+                if (DataContext is BimExportViewModel vm)
+                    vm.folder2 = selectedItem.Value;
+                initialDirectory = FolderPathHelper.Sanitize(selectedItem.Value);
             }
             else
             {

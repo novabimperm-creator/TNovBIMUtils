@@ -16,7 +16,7 @@ namespace TNovBIMUtils
         public string InitialDirectory
         {
             get { return string.IsNullOrEmpty(_initialDirectory) ? Environment.CurrentDirectory : _initialDirectory; }
-            set { _initialDirectory = value; }
+            set { _initialDirectory = FolderPathHelper.Sanitize(value); }
         }
         public string Title
         {
@@ -34,7 +34,7 @@ namespace TNovBIMUtils
             var result = Environment.OSVersion.Version.Major >= 6
                 ? VistaDialog.Show(hWndOwner, InitialDirectory, Title)
                 : ShowXpDialog(hWndOwner, InitialDirectory, Title);
-            _fileName = result.FileName;
+            _fileName = FolderPathHelper.Sanitize(result.FileName);
             return result.Result;
         }
 
@@ -124,6 +124,51 @@ namespace TNovBIMUtils
             private readonly IntPtr _handle;
             public WindowWrapper(IntPtr handle) { _handle = handle; }
             public IntPtr Handle { get { return _handle; } }
+        }
+    }
+
+    /// <summary>
+    /// Нормализация путей из полей окна. Проводник копирует путь в кавычках
+    /// («Копировать как путь»), из-за чего Revit считает его относительным
+    /// и приклеивает текущий каталог (обычно «Документы»).
+    /// </summary>
+    internal static class FolderPathHelper
+    {
+        public static string Sanitize(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return string.Empty;
+
+            path = path.Trim();
+
+            bool stripped;
+            do
+            {
+                stripped = false;
+                if (path.Length < 2)
+                    break;
+
+                char first = path[0];
+                char last = path[path.Length - 1];
+                if ((first == '"' && last == '"') ||
+                    (first == '\'' && last == '\'') ||
+                    (first == '\u00AB' && last == '\u00BB') ||
+                    (first == '\u201C' && last == '\u201D') ||
+                    (first == '\u2018' && last == '\u2019'))
+                {
+                    path = path.Substring(1, path.Length - 2).Trim();
+                    stripped = true;
+                }
+            } while (stripped);
+
+            // Кавычки недопустимы в путях Windows; оставшаяся " в начале
+            // делает путь относительным для SaveAs/Export.
+            path = path.Replace("\"", string.Empty).Trim();
+
+            if (path.Length >= 2 && char.IsLetter(path[0]) && path[1] == ':' && path.Length <= 3)
+                return path.Substring(0, 2) + @"\";
+
+            return path.TrimEnd('\\', '/');
         }
     }
 }

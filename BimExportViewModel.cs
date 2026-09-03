@@ -15,18 +15,18 @@ namespace TNovBIMUtils
     public class BimExportViewModel : INotifyPropertyChanged
     {
         private string _folder = @"\\fs-nova\NOVA\01_ПРОЕКТИРОВАНИЕ\02_Уфа_Промсвязь\03_BIM_Отчеты коллизий\Этап 1\_RVT";
-        public string folder { get => _folder; set { _folder = value; OnPropertyChanged(); } }
+        public string folder { get => _folder; set => SetFolder(ref _folder, value); }
         private string _folderRS = "";
         public string folderRS { get => _folderRS; set { _folderRS = value; OnPropertyChanged(); } }
-        [JsonIgnore] public ObservableCollection<Node> Nodes { get; set; }
+        [JsonIgnore] public ObservableCollection<Node> Nodes { get; set; } = new ObservableCollection<Node>();
         private string _namefilter = "";
         [JsonIgnore] public string namefilter { get => _namefilter; set { _namefilter = value; OnPropertyChanged(); } }
 
         private string _folder2 = @"\\fs-nova\NOVA\01_ПРОЕКТИРОВАНИЕ\02_Уфа_Промсвязь\03_BIM_Отчеты коллизий\Этап 1\_NWC";
-        public string folder2 { get => _folder2; set { _folder2 = value; OnPropertyChanged(); } }
+        public string folder2 { get => _folder2; set => SetFolder(ref _folder2, value); }
 
         private string _folder3 = @"\\fs-nova\NOVA\01_ПРОЕКТИРОВАНИЕ\02_Уфа_Промсвязь\06_Выдача";
-        public string folder3 { get => _folder3; set { _folder3 = value; OnPropertyChanged(); } }
+        public string folder3 { get => _folder3; set => SetFolder(ref _folder3, value); }
 
         private bool _RVTcheck = true;
         public bool RVTcheck { get => _RVTcheck; set { _RVTcheck = value; OnPropertyChanged(); } }
@@ -97,6 +97,19 @@ namespace TNovBIMUtils
         void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+        }
+
+        void SetFolder(ref string field, string value, [CallerMemberName] string propertyName = null)
+        {
+            string sanitized = FolderPathHelper.Sanitize(value);
+            if (field == sanitized)
+            {
+                if (!string.Equals(value, sanitized, StringComparison.Ordinal))
+                    OnPropertyChanged(propertyName);
+                return;
+            }
+            field = sanitized;
+            OnPropertyChanged(propertyName);
         }
         public void BuildTree(IEnumerable<string> existingModels, string configPath)
         {
