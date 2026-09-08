@@ -307,6 +307,7 @@ namespace TNovBIMUtils
                     if (fileName.Contains("-ЭЛ") && viewModel.EL == false) { BumpProgress(); continue; }
                     if (fileName.Contains("-ЭО") && viewModel.EL == false) { BumpProgress(); continue; }
                     if (fileName.Contains("-СС") && viewModel.SS == false) { BumpProgress(); continue; }
+                    if (fileName.Contains("-ПС") && viewModel.SS == false) { BumpProgress(); continue; }
                     if (fileName.Contains("_АР") && viewModel.AR == false) { BumpProgress(); continue; }
                     if (fileName.Contains("_ПОФ") && viewModel.AR == false) { BumpProgress(); continue; }
                     if (fileName.Contains("_КЖ") && viewModel.ST == false) { BumpProgress(); continue; }
@@ -315,6 +316,7 @@ namespace TNovBIMUtils
                     if (fileName.Contains("_ЭЛ") && viewModel.EL == false) { BumpProgress(); continue; }
                     if (fileName.Contains("_ЭО") && viewModel.EL == false) { BumpProgress(); continue; }
                     if (fileName.Contains("_СС") && viewModel.SS == false) { BumpProgress(); continue; }
+                    if (fileName.Contains("_ПС") && viewModel.SS == false) { BumpProgress(); continue; }
                     if (!string.IsNullOrEmpty(viewModel.namefilter) && !fileName.Contains(viewModel.namefilter))
                     {
                         BumpProgress();
