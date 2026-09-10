@@ -75,7 +75,7 @@
                                           IsEnabled="{Binding IsLocked, Converter={StaticResource InverseConverter}}"
                                           Style="{StaticResource DarkCheckBoxStyle}"
                                           Uid="{Binding Id}"/>
-                                <TextBlock Text="{Binding Text}" Margin="6,0,0,0" Foreground="White"/>
+                                <TextBlock Text="{Binding Text}" Margin="6,0,0,0" Foreground="{StaticResource PrimaryTextBrush}"/>
                             </StackPanel>
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>

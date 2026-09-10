@@ -141,7 +141,7 @@
                                                       IsEnabled="{Binding IsLocked, Converter={StaticResource InverseConverter}}"
                                                       Style="{StaticResource TreeCheckToggleStyle}"
                                                       Uid="{Binding Id}"/>
-                                        <TextBlock Text="{Binding Text}" Foreground="White" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Text}" Foreground="{StaticResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                             </TreeView.ItemTemplate>
