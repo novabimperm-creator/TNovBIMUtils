@@ -10,7 +10,7 @@ namespace TNovBIMUtils
 {
     public class TreeBuilder
     {
-        public static ObservableCollection<Node> BuildTree(IEnumerable<string> paths, IEnumerable<string> existingModels)
+        public static ObservableCollection<Node> BuildTree(IEnumerable<string> paths, IEnumerable<string> existingModels, string lockedSuffix = " (вставлено)")
         {
             var root = new Node() { Text = "ROOT" };
 
@@ -21,13 +21,13 @@ namespace TNovBIMUtils
                     .TrimEnd('\\');
 
                 var parts = normalizedPath.Split('\\');
-                AddPathParts(root, parts, path, existingModels);
+                AddPathParts(root, parts, path, existingModels, lockedSuffix);
             }
 
             return root.Children;
         }
 
-        private static void AddPathParts(Node parent, string[] pathParts, string path, IEnumerable<string> existingModels)
+        private static void AddPathParts(Node parent, string[] pathParts, string path, IEnumerable<string> existingModels, string lockedSuffix)
         {
             var current = parent;
 
@@ -40,11 +40,13 @@ namespace TNovBIMUtils
                 if (part.EndsWith("rvt")) 
                 { 
                     isModel = true;
-                    if (existingModels.First() != "-----") 
+                    if (existingModels != null)
                     {
                         foreach (var eM in existingModels)
                         {
-                            if (eM.Contains(part)) {isLocked = true; text += " (вставлено)"; break;}
+                            if (string.IsNullOrEmpty(eM) || eM == "-----")
+                                continue;
+                            if (eM.Contains(part)) {isLocked = true; text += lockedSuffix; break;}
                         }
                     }
                     

@@ -41,7 +41,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="35"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="REVIT SERVER"
+                    <TextBlock Text="{Binding Header}"
                                Grid.Column="0"
                                Foreground="{StaticResource AccentBrush}"
                                FontSize="22"
@@ -71,11 +71,11 @@
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=TwoWay}">
                             <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                                          IsEnabled="{Binding IsLocked, Converter={StaticResource InverseConverter}}"
-                                          Style="{StaticResource DarkCheckBoxStyle}"
-                                          Uid="{Binding Id}"/>
-                                <TextBlock Text="{Binding Text}" Margin="6,0,0,0" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                <ToggleButton IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                              IsEnabled="{Binding IsLocked, Converter={StaticResource InverseConverter}}"
+                                              Style="{StaticResource TreeCheckToggleStyle}"
+                                              Uid="{Binding Id}"/>
+                                <TextBlock Text="{Binding Text}" Margin="6,0,0,0" Foreground="{StaticResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>

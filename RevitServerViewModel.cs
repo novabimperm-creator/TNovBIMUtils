@@ -100,12 +100,18 @@ namespace TNovBIMUtils
     public class RevitServerViewModel : INotifyPropertyChanged
     {
         public ObservableCollection<Node> Nodes { get; set; }
+        private string _header = "REVIT SERVER";
+        public string Header
+        {
+            get => _header;
+            set { _header = value; OnPropertyChanged(); }
+        }
         
-        public RevitServerViewModel(IEnumerable<string> existingModels)
+        public RevitServerViewModel(IEnumerable<string> existingModels, string lockedSuffix = " (вставлено)")
         {
             TNovConfig config = TNovConfigLoad.LoadConfig();
             List<string> filePaths = File.ReadAllLines(config.ServerPath + "RS.txt").ToList();
-            Nodes = TreeBuilder.BuildTree(filePaths,existingModels);
+            Nodes = TreeBuilder.BuildTree(filePaths, existingModels, lockedSuffix);
         }
 
         public event EventHandler CloseRequest;
