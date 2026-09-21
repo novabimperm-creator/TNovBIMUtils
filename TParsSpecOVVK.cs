@@ -236,6 +236,25 @@ namespace TNovBIMUtils
                                 TParam.Set(TStValue.ToString().Replace(',', '.')); Logger.Log("   толщ ст: " + TStValue.ToString().Replace(',', '.'), 2);
                             }
                         }
+                        if (TDiameterResolver.IsTargetCategory(categoryId)
+                            && Param.ParamExistByGuid(TDiamParamGuid, elem)) //Т_Диаметр
+                        {
+                            Parameter TParam = elem.get_Parameter(TDiamParamGuid);
+                            if (TParam != null && TParam.IsReadOnly == false)
+                            {
+                                double TDiamValue;
+                                bool found = TDiameterResolver.TryResolve(doc, elem, out TDiamValue);
+                                if (found)
+                                {
+                                    TParam.Set(TDiamValue); Logger.Log("   диаметр: " + TDiamValue.ToString(), 2);
+                                }
+                                else if (TParam.HasValue)
+                                {
+                                    TParam.Set(0.0); Logger.Log("   диаметр: 0", 2);
+                                }
+                                else Logger.Log("   диаметр: пропуск", 2);
+                            }
+                        }
                         PBCount++;
                         this.ProgressBar.TNov_ProgressBar.Dispatcher.Invoke<double>((Func<double>)(() => this.ProgressBar.TNov_ProgressBar.Value = (double)PBCount));
                         this.ProgressBar.TNov_ProgressBar.Dispatcher.Invoke<string>((Func<string>)(() => this.ProgressBar.value.Text = PBCount.ToString()));

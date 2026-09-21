@@ -132,6 +132,15 @@ namespace TNovBIMUtils
                         Parameter TParam = elem.get_Parameter(TStParamGuid);
                         if (TParam.IsReadOnly == false) {try{TParam.Set(TStValue.ToString().Replace(',','.')); } catch { } }
                     }
+                    if (TDiameterResolver.IsTargetCategory(categoryId)
+                        && Param.ParamExistByGuid(TDiamParamGuid, elem)) //Т_Диаметр
+                    {
+                        Parameter TParam = elem.get_Parameter(TDiamParamGuid);
+                        if (TParam != null && TParam.IsReadOnly == false)
+                        {
+                            try { TDiameterResolver.Apply(doc, elem, TParam); } catch { }
+                        }
+                    }
                 }
             }
 
