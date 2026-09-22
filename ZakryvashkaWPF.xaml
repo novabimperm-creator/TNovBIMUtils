@@ -1,0 +1,151 @@
+<Window x:Class="TNovBIMUtils.ZakryvashkaWPF"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:TNovBIMUtils"
+        mc:Ignorable="d"
+        Width="420"
+        SizeToContent="Height"
+        d:DataContext="{d:DesignInstance local:ZakryvashkaViewModel}"
+        WindowStartupLocation="CenterOwner"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        WindowStyle="None">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/TNovCommon;component/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="30"
+                      ResizeBorderThickness="5"
+                      GlassFrameThickness="0"
+                      CornerRadius="12"/>
+    </WindowChrome.WindowChrome>
+
+    <Border CornerRadius="12"
+            Background="{StaticResource BgBrush}"
+            BorderBrush="{StaticResource AccentBrush}"
+            BorderThickness="1">
+        <StackPanel Margin="18">
+            <Border MouseDown="TitleBar_MouseDown" Background="Transparent" Cursor="Arrow">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="35"/>
+                        <ColumnDefinition Width="35"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="ЗАКРЫВАШКА"
+                               Grid.Column="0"
+                               Foreground="{StaticResource AccentBrush}"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                    <Button Content="i"
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource CloseButtonStyleMini}"
+                            Click="HelpButton_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Content="✕"
+                            Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource CloseButtonStyleMini}"
+                            Click="escButton_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <TextBlock Text="Пакетная синхронизация открытых моделей"
+                       Foreground="{StaticResource MutedBrush}"
+                       FontSize="12"
+                       Margin="0,2,0,12"/>
+
+            <Border Style="{StaticResource PanelFrameStyle}" Margin="0,0,0,8" Padding="10,8">
+                <StackPanel>
+                    <TextBlock Text="Модели" Style="{StaticResource PanelHeaderStyle}" Margin="0,0,0,6"/>
+                    <ScrollViewer MinHeight="72"
+                                  MaxHeight="160"
+                                  VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Models}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                  Style="{StaticResource DarkCheckBoxStyle}"/>
+                                        <TextBlock Text="{Binding Name}"
+                                                   Margin="8,0,0,0"
+                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <CheckBox Content="Выбрать все"
+                              IsChecked="{Binding SelectAllModels, Mode=TwoWay}"
+                              Style="{StaticResource DarkCheckBoxStyle}"
+                              Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource PanelFrameStyle}" Margin="0,0,0,8" Padding="10,8">
+                <StackPanel>
+                    <TextBlock Text="Семейства" Style="{StaticResource PanelHeaderStyle}" Margin="0,0,0,6"/>
+                    <ScrollViewer MinHeight="56"
+                                  MaxHeight="120"
+                                  VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Families}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                  Style="{StaticResource DarkCheckBoxStyle}"/>
+                                        <TextBlock Text="{Binding Name}"
+                                                   Margin="8,0,0,0"
+                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <CheckBox Content="Выбрать все"
+                              IsChecked="{Binding SelectAllFamilies, Mode=TwoWay}"
+                              Style="{StaticResource DarkCheckBoxStyle}"
+                              Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <ToggleButton Style="{StaticResource CardToggleStyle}"
+                          IsChecked="{Binding SyncAndSave}"
+                          Margin="0,0,0,6"
+                          Padding="10,8">
+                <TextBlock Text="Синхронизировать и сохранить" Style="{StaticResource CardTitleStyle}"/>
+            </ToggleButton>
+            <ToggleButton Style="{StaticResource CardToggleStyle}"
+                          IsChecked="{Binding CloseDocuments}"
+                          Margin="0,0,0,12"
+                          Padding="10,8">
+                <TextBlock Text="Закрыть документ" Style="{StaticResource CardTitleStyle}"/>
+            </ToggleButton>
+
+            <Button Content="Выполнить"
+                    Style="{StaticResource RunButtonStyle}"
+                    IsDefault="True"
+                    Click="acceptButton_Click"/>
+            <Button Content="Отмена"
+                    Style="{StaticResource CloseButtonStyle}"
+                    IsCancel="True"
+                    Click="escButton_Click"/>
+        </StackPanel>
+    </Border>
+</Window>

@@ -1,15 +1,14 @@
-﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.DB;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TNovCommon;
 
 namespace TNovBIMUtils
 {
     public class TNovParsNaimOboznSTUpdater : IUpdater
     {
+        private const string UpdaterName = "TNovParsNaimOboznSTUpdater";
+
         private static AddInId m_appId;
         private static UpdaterId m_updaterId;
 
@@ -30,103 +29,119 @@ namespace TNovBIMUtils
             m_appId = id;
             m_updaterId = new UpdaterId(m_appId, new Guid("8cf9db58-79db-4cb4-8c24-dd0762fb6ade"));
         }
+
+        /// <summary>
+        /// Точка входа Revit. Наружу не должно вылетать ни одного исключения:
+        /// любое исключение из IUpdater.Execute Revit показывает пользователю
+        /// с предложением отключить обновитель.
+        /// </summary>
         public void Execute(UpdaterData data)
         {
+            try
+            {
+                ExecuteCore(data);
+            }
+            catch (Exception ex)
+            {
+                UpdaterDiagnostics.Report(UpdaterName, "Execute", ex);
+            }
+        }
+
+        private void ExecuteCore(UpdaterData data)
+        {
+            if (data == null) return;
+
             Document doc = data.GetDocument();
+            if (doc == null || doc.IsFamilyDocument) return;
+
+            string docName = doc.Title ?? "";
+            if (!(docName.Contains("-КЖ") || docName.Contains("_КЖ")
+                || docName.Contains("-КР-") || docName.Contains("_КР_"))) return;
+
+            var allElementIds = new HashSet<ElementId>();
             ICollection<ElementId> addedIds = data.GetAddedElementIds();
+            if (addedIds != null) allElementIds.UnionWith(addedIds);
             ICollection<ElementId> modifiedIds = data.GetModifiedElementIds();
+            if (modifiedIds != null) allElementIds.UnionWith(modifiedIds);
 
-            // Объединяем все измененные элементы
-            var allElementIds = new HashSet<ElementId>(addedIds);
-            allElementIds.UnionWith(modifiedIds);
-
-            if (!allElementIds.Any()) return;
+            if (allElementIds.Count == 0) return;
 
             // шифр проекта
-            ProjectInfo projectInfo = doc.ProjectInformation;
             string projectCodeValue = "";
+            ProjectInfo projectInfo = doc.ProjectInformation;
             if (projectInfo != null)
             {
-                try { projectCodeValue = projectInfo.get_Parameter(NProjectCodeParamGuid)?.AsString(); } catch { }
+                try { projectCodeValue = UpdaterUtils.GetStringSafe(projectInfo.get_Parameter(NProjectCodeParamGuid)); }
+                catch { }
             }
 
-            string docName = doc.Title.ToString();
-            if (docName.Contains("-КЖ") || docName.Contains("_КЖ") || docName.Contains("-КР-") || docName.Contains("_КР_"))
+            foreach (ElementId elementId in allElementIds)
             {
-                foreach (ElementId elementId in allElementIds)
+                // Сбой на одном элементе не должен ронять обработку остальных
+                try
                 {
-                    Element elem = doc.GetElement(elementId);
-                    if (elem == null) continue;
-                    if (Param.ParamExistByGuid(NTParamsNotSetParamGuid, elem) && elem.get_Parameter(NTParamsNotSetParamGuid).AsDouble() == 1) continue;
-
-                    string naimValue = ""; string oboznValue = "";
-
-                    //сценарии: 1 - заводское изделие, 2 - индив изделие, 3 - конструкция
-                    int scenario = 3;
-                    //считываем исходные параметры либо с экз, либо с типа
-                    string NOboznParamValue = Param.GetStringParamValue(doc, NOboznParamGuid, elem); 
-                    string NNaimParamValue = Param.GetStringParamValue(doc, NNaimParamGuid, elem); 
-                    string adskCMarkParamValue = Param.GetStringParamValue(doc, adskCMarkParamGuid, elem); 
-                    string adskIzdMarkParamValue = Param.GetStringParamValue(doc, adskIzdMarkParamGuid, elem); 
-                    string adskSheetSetParamValue = Param.GetStringParamValue(doc, adskSheetSetParamGuid, elem); 
-                    if (adskSheetSetParamValue.Length > 0) adskSheetSetParamValue = "-" + adskSheetSetParamValue;
-                    string adskElemSheetNumberParamValue = Param.GetStringParamValue(doc, adskElemSheetNumberParamGuid, elem); 
-                    if (adskElemSheetNumberParamValue.Length > 0) adskElemSheetNumberParamValue = " л. " + adskElemSheetNumberParamValue;
-                    //группа модели
-                    string gmValue = ""; ElementId typeId = elem.GetTypeId();
-                    if (typeId != null)
-                    {
-#if R2022
-                        long typeint = typeId.IntegerValue;
-#else
-                        long typeint = typeId.Value;
-#endif
-                        if (typeint != -1)
-                        {
-                            Element type = doc.GetElement(typeId);
-                            if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue)
-                                gmValue = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString();
-                        }
-                    }
-                    if (gmValue.Contains("Серия") || gmValue.Contains("ГОСТ")) scenario = 1;
-                    else if (adskIzdMarkParamValue.Length > 1) scenario = 2;
-
-                    switch (scenario)
-                    {
-                        case 1:
-                            naimValue = NNaimParamValue + " " + adskIzdMarkParamValue;
-                            oboznValue = NOboznParamValue;
-                            break;
-                        case 2:
-                            naimValue = NNaimParamValue + " " + adskIzdMarkParamValue;
-                            oboznValue = projectCodeValue + adskSheetSetParamValue + adskElemSheetNumberParamValue;
-                            break;
-                        case 3:
-                            if (NNaimParamValue.Length == 0 && adskCMarkParamValue.Length > 0) NNaimParamValue = ConstructionType(adskCMarkParamValue);
-                            naimValue = NNaimParamValue + " " + adskCMarkParamValue;
-                            oboznValue = projectCodeValue + adskSheetSetParamValue + adskElemSheetNumberParamValue;
-                            break;
-                    }
-
-                    try { 
-                        if (naimValue != null && naimValue.Length > 0 && Param.ParamExistByGuid(TNaimParamGuid, elem))
-                        {
-                            Parameter param = elem.get_Parameter(TNaimParamGuid); //Т_Наименование
-                            if (param.IsReadOnly == false) { param.Set(naimValue); }
-                        }
-                        if (oboznValue != null && oboznValue.Length > 0 && Param.ParamExistByGuid(TOboznParamGuid, elem))
-                        {
-                            Parameter param = elem.get_Parameter(TOboznParamGuid); //Т_Обозначение
-                            if (param.IsReadOnly == false) { param.Set(oboznValue); }
-                        }
-                    }
-                    catch { }
+                    ProcessElement(doc, elementId, projectCodeValue);
+                }
+                catch (Exception ex)
+                {
+                    UpdaterDiagnostics.Report(UpdaterName, "элемент " + UpdaterUtils.IdText(elementId), ex);
                 }
             }
-
-            
         }
-        
+
+        private void ProcessElement(Document doc, ElementId elementId, string projectCodeValue)
+        {
+            Element elem = doc.GetElement(elementId);
+            if (elem == null) return;
+            if (UpdaterUtils.IsSkipFlagSet(elem, NTParamsNotSetParamGuid)) return;
+
+            string naimValue = ""; string oboznValue = "";
+
+            //сценарии: 1 - заводское изделие, 2 - индив изделие, 3 - конструкция
+            int scenario = 3;
+            //считываем исходные параметры либо с экз, либо с типа
+            string NOboznParamValue = Param.GetStringParamValue(doc, NOboznParamGuid, elem) ?? "";
+            string NNaimParamValue = Param.GetStringParamValue(doc, NNaimParamGuid, elem) ?? "";
+            string adskCMarkParamValue = Param.GetStringParamValue(doc, adskCMarkParamGuid, elem) ?? "";
+            string adskIzdMarkParamValue = Param.GetStringParamValue(doc, adskIzdMarkParamGuid, elem) ?? "";
+            string adskSheetSetParamValue = Param.GetStringParamValue(doc, adskSheetSetParamGuid, elem) ?? "";
+            if (adskSheetSetParamValue.Length > 0) adskSheetSetParamValue = "-" + adskSheetSetParamValue;
+            string adskElemSheetNumberParamValue = Param.GetStringParamValue(doc, adskElemSheetNumberParamGuid, elem) ?? "";
+            if (adskElemSheetNumberParamValue.Length > 0) adskElemSheetNumberParamValue = " л. " + adskElemSheetNumberParamValue;
+
+            //группа модели (у системных типоразмеров параметра "Модель" нет)
+            string gmValue = "";
+            Element type = UpdaterUtils.GetElementType(doc, elem);
+            if (type != null)
+                gmValue = UpdaterUtils.GetStringSafe(type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL));
+
+            if (gmValue.Contains("Серия") || gmValue.Contains("ГОСТ")) scenario = 1;
+            else if (adskIzdMarkParamValue.Length > 1) scenario = 2;
+
+            switch (scenario)
+            {
+                case 1:
+                    naimValue = NNaimParamValue + " " + adskIzdMarkParamValue;
+                    oboznValue = NOboznParamValue;
+                    break;
+                case 2:
+                    naimValue = NNaimParamValue + " " + adskIzdMarkParamValue;
+                    oboznValue = projectCodeValue + adskSheetSetParamValue + adskElemSheetNumberParamValue;
+                    break;
+                case 3:
+                    if (NNaimParamValue.Length == 0 && adskCMarkParamValue.Length > 0) NNaimParamValue = ConstructionType(adskCMarkParamValue);
+                    naimValue = NNaimParamValue + " " + adskCMarkParamValue;
+                    oboznValue = projectCodeValue + adskSheetSetParamValue + adskElemSheetNumberParamValue;
+                    break;
+            }
+
+            if (naimValue.Length > 0) //Т_Наименование
+                UpdaterUtils.TrySetString(UpdaterUtils.GetWritableParam(elem, TNaimParamGuid), naimValue);
+
+            if (oboznValue.Length > 0) //Т_Обозначение
+                UpdaterUtils.TrySetString(UpdaterUtils.GetWritableParam(elem, TOboznParamGuid), oboznValue);
+        }
+
         String ConstructionType(in string mark)
         {
             string type = "";
@@ -146,9 +161,10 @@ namespace TNovBIMUtils
             if (mark.StartsWith("Км")) type = "Канал монолитный";
             return type;
         }
+
         public string GetAdditionalInformation() => "Обновляет параметры Т_Наименование и Т_Обозначение у элементов КЖ";
         public ChangePriority GetChangePriority() => ChangePriority.FloorsRoofsStructuralWalls;
         public UpdaterId GetUpdaterId() => m_updaterId;
-        public string GetUpdaterName() => "TNovParsNaimOboznSTUpdater";
+        public string GetUpdaterName() => UpdaterName;
     }
 }

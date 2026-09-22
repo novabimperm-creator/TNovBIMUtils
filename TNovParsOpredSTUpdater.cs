@@ -1,15 +1,14 @@
-﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.DB;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TNovCommon;
 
 namespace TNovBIMUtils
 {
     public class TNovParsOpredSTUpdater : IUpdater
     {
+        private const string UpdaterName = "TNovParsOpredSTUpdater";
+
         private static AddInId m_appId;
         private static UpdaterId m_updaterId;
 
@@ -23,170 +22,162 @@ namespace TNovBIMUtils
             m_appId = id;
             m_updaterId = new UpdaterId(m_appId, new Guid("c6acb694-23ab-4df2-8aad-ac2f727b54a7"));
         }
+
+        /// <summary>
+        /// Точка входа Revit. Наружу не должно вылетать ни одного исключения:
+        /// любое исключение из IUpdater.Execute Revit показывает пользователю
+        /// с предложением отключить обновитель.
+        /// </summary>
         public void Execute(UpdaterData data)
         {
-            Document doc = data.GetDocument();
-            ICollection<ElementId> addedIds = data.GetAddedElementIds();
-            ICollection<ElementId> modifiedIds = data.GetModifiedElementIds();
-
-            // Объединяем все измененные элементы
-            var allElementIds = new HashSet<ElementId>(addedIds);
-            allElementIds.UnionWith(modifiedIds);
-
-            if (!allElementIds.Any()) return;
-
-            string docName = doc.Title.ToString();
-            if (docName.Contains("-КЖ") || docName.Contains("_КЖ") || docName.Contains("-КР-") || docName.Contains("_КР_"))
+            try
             {
-                foreach (ElementId elementId in allElementIds)
+                ExecuteCore(data);
+            }
+            catch (Exception ex)
+            {
+                UpdaterDiagnostics.Report(UpdaterName, "Execute", ex);
+            }
+        }
+
+        private void ExecuteCore(UpdaterData data)
+        {
+            if (data == null) return;
+
+            Document doc = data.GetDocument();
+            if (doc == null || doc.IsFamilyDocument) return;
+
+            string docName = doc.Title ?? "";
+            if (!(docName.Contains("-КЖ") || docName.Contains("_КЖ")
+                || docName.Contains("-КР-") || docName.Contains("_КР_"))) return;
+
+            var allElementIds = new HashSet<ElementId>();
+            ICollection<ElementId> addedIds = data.GetAddedElementIds();
+            if (addedIds != null) allElementIds.UnionWith(addedIds);
+            ICollection<ElementId> modifiedIds = data.GetModifiedElementIds();
+            if (modifiedIds != null) allElementIds.UnionWith(modifiedIds);
+
+            if (allElementIds.Count == 0) return;
+
+            foreach (ElementId elementId in allElementIds)
+            {
+                // Сбой на одном элементе не должен ронять обработку остальных
+                try
                 {
-                    Element elem = doc.GetElement(elementId);
-                    if (elem == null) continue;
-                    if (Param.ParamExistByGuid(NTParamsNotSetParamGuid, elem) && elem.get_Parameter(NTParamsNotSetParamGuid).AsDouble() == 1) continue;
-#if R2022
-                        long catId = elem.Category.Id.IntegerValue;
-#else
-                    long catId = elem.Category.Id.Value;
-#endif
-                    
-                    if (catId == -2000919 || catId == -2000920 || catId == -2000123 || catId == -2000120) //лестницы и вложенные лестниц - ускоренное назначение параметра
-                    {
-                        if (Param.ParamExistByGuid(TOprParamGuid, elem))
-                        {
-                            Parameter param = elem.get_Parameter(TOprParamGuid); //Т_Определение
-                            if (param.IsReadOnly == false) { try{param.Set("Лестница"); } catch { } }
-                        }
-                        continue;
-                    }
-                    if (catId == -2000126) //ограждения - ускоренное назначение параметра
-                    {
-                        if (Param.ParamExistByGuid(TOprParamGuid, elem))
-                        {
-                            Parameter param = elem.get_Parameter(TOprParamGuid); //Т_Определение
-                            if (param.IsReadOnly == false) { try{param.Set("Ограждение"); } catch { } }
-                        }
-                        continue;
-                    }
-                    string group = "";
-                    group = MarkGroup(elem, doc);
-                    if (group != null && group.Length > 0 && Param.ParamExistByGuid(TOprParamGuid, elem))
-                    {
-                        Parameter param = elem.get_Parameter(TOprParamGuid); //Т_Определение
-                        if (param.IsReadOnly == false) { try { param.Set(group); } catch { } }
-                    }
+                    ProcessElement(doc, elementId);
+                }
+                catch (Exception ex)
+                {
+                    UpdaterDiagnostics.Report(UpdaterName, "элемент " + UpdaterUtils.IdText(elementId), ex);
                 }
             }
-
-            
         }
+
+        private void ProcessElement(Document doc, ElementId elementId)
+        {
+            Element elem = doc.GetElement(elementId);
+            if (elem == null) return;
+            if (UpdaterUtils.IsSkipFlagSet(elem, NTParamsNotSetParamGuid)) return;
+
+            Category category = elem.Category;
+            if (category == null) return;
+            long catId = UpdaterUtils.IdValue(category.Id);
+
+            Parameter opredParam = UpdaterUtils.GetWritableParam(elem, TOprParamGuid); //Т_Определение
+
+            if (catId == -2000919 || catId == -2000920 || catId == -2000123 || catId == -2000120) //лестницы и вложенные лестниц - ускоренное назначение параметра
+            {
+                UpdaterUtils.TrySetString(opredParam, "Лестница");
+                return;
+            }
+            if (catId == -2000126) //ограждения - ускоренное назначение параметра
+            {
+                UpdaterUtils.TrySetString(opredParam, "Ограждение");
+                return;
+            }
+
+            string group = MarkGroup(elem, doc);
+            if (!string.IsNullOrEmpty(group))
+                UpdaterUtils.TrySetString(opredParam, group);
+        }
+
         String MarkGroup(in Element elem, in Document doc)
         {
             string mark = "-";
-            if (Param.ParamExistByGuid(adskCMarkParamGuid, elem) && elem.get_Parameter(adskCMarkParamGuid).HasValue)
+            Parameter markParam = UpdaterUtils.GetParam(elem, adskCMarkParamGuid);
+            if (markParam != null && markParam.HasValue)
             {
-                mark = elem.get_Parameter(adskCMarkParamGuid).AsString(); 
+                string markValue = UpdaterUtils.GetStringSafe(markParam);
+                if (markValue.Length > 0) mark = markValue;
             }
 
             string group = "";
             if (mark.StartsWith("Фп") || mark.StartsWith("Рп") || mark.StartsWith("Фм") || mark.StartsWith("Рм") || mark.StartsWith("Рл"))
             {
-                ElementId typeId = elem.GetTypeId();
-                if (typeId != null && GetIdValue(typeId) != -1)
-                    group = ParseTypeST(typeId, doc, "Фундамент");
+                group = ParseTypeST(elem, doc, "Фундамент");
             }
             else if (mark.StartsWith("Пл") || mark.StartsWith("Пп"))
             {
-                ElementId typeId = elem.GetTypeId();
-                if (typeId != null && GetIdValue(typeId) != -1)
-                    group = ParseTypeST(typeId, doc, "Плита перекрытия");
+                group = ParseTypeST(elem, doc, "Плита перекрытия");
             }
             else if (mark.StartsWith("Пб"))
             {
-                ElementId typeId = elem.GetTypeId();
-                if (typeId != null && GetIdValue(typeId) != -1)
-                    group = ParseTypeST(typeId, doc, "Плита по грунту");
+                group = ParseTypeST(elem, doc, "Плита по грунту");
             }
             else if (mark.StartsWith("Пр"))
             {
-                ElementId typeId = elem.GetTypeId();
-                if (typeId != null && GetIdValue(typeId) != -1)
-                    group = ParseTypeST(typeId, doc, "Приямок");
+                group = ParseTypeST(elem, doc, "Приямок");
             }
             else if (mark.StartsWith("Кл"))
             {
-                ElementId typeId = elem.GetTypeId();
-                if (typeId != null && GetIdValue(typeId) != -1)
-                    group = ParseTypeST(typeId, doc, "Колонна");
+                group = ParseTypeST(elem, doc, "Колонна");
             }
             else if (mark.StartsWith("Пм"))
             {
-                ElementId typeId = elem.GetTypeId();
-                if (typeId != null && GetIdValue(typeId) != -1)
-                    group = ParseTypeST(typeId, doc, "Пилон");
+                group = ParseTypeST(elem, doc, "Пилон");
             }
             else if (mark.StartsWith("Дж") || mark.StartsWith("Мс"))
             {
-                ElementId typeId = elem.GetTypeId();
-                if (typeId != null && GetIdValue(typeId) != -1)
-                    group = ParseTypeST(typeId, doc, "Стена");
+                group = ParseTypeST(elem, doc, "Стена");
             }
             else if (mark.StartsWith("Бм"))
             {
-                ElementId typeId = elem.GetTypeId();
-                if (typeId != null && GetIdValue(typeId) != -1)
-                    group = ParseTypeST(typeId, doc, "Балка");
+                group = ParseTypeST(elem, doc, "Балка");
             }
             else if (mark.StartsWith("Лм") || mark.StartsWith("Лп") || mark.StartsWith("Лк"))
             {
-                ElementId typeId = elem.GetTypeId();
-                if (typeId != null && GetIdValue(typeId) != -1)
-                    group = ParseTypeST(typeId, doc, "Лестница");
+                group = ParseTypeST(elem, doc, "Лестница");
             }
             else if (mark.StartsWith("Пт"))
             {
-                ElementId typeId = elem.GetTypeId();
-                if (typeId != null && GetIdValue(typeId) != -1)
-                    group = ParseTypeST(typeId, doc, "Парапет");
+                group = ParseTypeST(elem, doc, "Парапет");
             }
             else // прочие марки (Км и т.д.) либо пустые марки
             {
-                if (GetIdValue(elem.Category.Id) == -2001300)
-                {
-                    ElementId typeId = elem.GetTypeId();
-                    if (typeId != null && GetIdValue(typeId) != -1)
-                        group = ParseTypeST(typeId, doc, "Фундамент");
-                }
-                if (GetIdValue(elem.Category.Id) == -2000032)
-                {
-                    ElementId typeId = elem.GetTypeId();
-                    if (typeId != null && GetIdValue(typeId) != -1)
-                        group = ParseTypeST(typeId, doc, "Плита перекрытия");
-                }
-                if (GetIdValue(elem.Category.Id) == -2000011)
-                {
-                    ElementId typeId = elem.GetTypeId();
-                    if (typeId != null && GetIdValue(typeId) != -1)
-                        group = ParseTypeST(typeId, doc, "Стена");
-                }
-                if (GetIdValue(elem.Category.Id) == -2000120)
-                {
-                    ElementId typeId = elem.GetTypeId();
-                    if (typeId != null && GetIdValue(typeId) != -1)
-                        group = ParseTypeST(typeId, doc, "Лестница");
-                }
+                long catId = UpdaterUtils.CategoryId(elem);
+                if (catId == -2001300) group = ParseTypeST(elem, doc, "Фундамент");
+                if (catId == -2000032) group = ParseTypeST(elem, doc, "Плита перекрытия");
+                if (catId == -2000011) group = ParseTypeST(elem, doc, "Стена");
+                if (catId == -2000120) group = ParseTypeST(elem, doc, "Лестница");
             }
 
             return group;
         }
 
-        String ParseTypeST(in ElementId typeId, in Document doc, in string OpredValue)
+        String ParseTypeST(in Element elem, in Document doc, in string OpredValue)
         {
+            Element type = UpdaterUtils.GetElementType(doc, elem);
+            if (type == null) return "";
+
+            // У системных типоразмеров (стены, перекрытия, фундаменты) параметра
+            // "Модель" нет вовсе — тогда разбираем имя типа
+            string gm = ModelGroup(type);
+            string typeName = type.Name ?? "";
+
             string group = "";
-            Element type = doc.GetElement(typeId);
             //подготовка, термо, гидро, сваи, лестницы, галтели
-            if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue) //условие исходя из группы модели
+            if (gm != null) //условие исходя из группы модели
             {
-                string gm = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString(); 
                 if (gm.Contains("Подготовка") || gm.Contains("Подбетонка")) group = "Подготовка";
                 if (gm.Contains("Термо")) group = "Термовкладыш";
                 if (gm.Contains("Свая")) group = "Свая";
@@ -195,38 +186,37 @@ namespace TNovBIMUtils
             }
             else //альтернативное исходя из имени типа
             {
-                if (type.Name.Contains("Подготовка") || type.Name.Contains("Подбетонка")) group = "Подготовка";
-                if (type.Name.Contains("Термо")) group = "Термовкладыш";
-                if (type.Name.Contains("ГИ") || type.Name.Contains("Гидроиз")) group = "Гидроизоляция";
-                if (type.Name.Contains("Фунд")) group = "Фундамент";
+                if (typeName.Contains("Подготовка") || typeName.Contains("Подбетонка")) group = "Подготовка";
+                if (typeName.Contains("Термо")) group = "Термовкладыш";
+                if (typeName.Contains("ГИ") || typeName.Contains("Гидроиз")) group = "Гидроизоляция";
+                if (typeName.Contains("Фунд")) group = "Фундамент";
             }
             //основная конструкция (бетон)
-            if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).HasValue) //условие исходя из группы модели
+            if (gm != null) //условие исходя из группы модели
             {
-                string gm = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString();
-                if (gm.Contains("Бетон") || gm.Contains("Бетон")) group = OpredValue;
+                if (gm.Contains("Бетон")) group = OpredValue;
             }
             else //альтернативное исходя из имени типа
             {
-                if (type.Name.Contains("Бетон") || type.Name.Contains("Бетон")) group = OpredValue;
+                if (typeName.Contains("Бетон")) group = OpredValue;
             }
             //рампа
-            if (type.Name.Contains("Рампа") || type.Name.Contains("рампа")) group = "Рампа"; 
-
+            if (typeName.Contains("Рампа") || typeName.Contains("рампа")) group = "Рампа";
 
             return group;
         }
-        private static int GetIdValue(ElementId id)
+
+        /// <summary>Группа модели типоразмера или null, если параметра нет / он пуст.</summary>
+        private static string ModelGroup(Element type)
         {
-#if R2022
-    return id.IntegerValue;
-#else
-            return (int)id.Value;
-#endif
+            Parameter p = type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL);
+            if (p == null || !p.HasValue) return null;
+            return p.AsString();
         }
+
         public string GetAdditionalInformation() => "Обновляет параметр Т_Определение у элементов КЖ";
         public ChangePriority GetChangePriority() => ChangePriority.FloorsRoofsStructuralWalls;
         public UpdaterId GetUpdaterId() => m_updaterId;
-        public string GetUpdaterName() => "TNovParsOpredSTUpdater";
+        public string GetUpdaterName() => UpdaterName;
     }
 }
