@@ -103,6 +103,7 @@ namespace TNovBIMUtils
         {
             var lines = Entries.Select(e => $"{e.Code},{e.Path},{e.Status}").ToArray();
             File.WriteAllLines(_filePath, lines, Encoding.UTF8);
+            TNovCommon.Server.ServerData.Invalidate("CDE.txt");
             IsDirty = false;
         }
 

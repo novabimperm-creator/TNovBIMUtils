@@ -192,14 +192,13 @@ namespace TNovBIMUtils
             if (useRevitServer)
             {
                 Logger.Log("Используется Revit Server", 2);
-                string rsPathFile = config.ServerPath + "RSpath.txt";
-                if (!File.Exists(rsPathFile))
+                if (!TNovCommon.Server.ServerData.TryReadAllText("RSpath.txt", out string rsPathText))
                 {
                     new InfoWindow280("Не найден файл RSpath.txt.").ShowDialog();
                     Logger.Log("Не найден RSpath.txt. Завершение работы.", 3);
                     return Result.Cancelled;
                 }
-                string RSfilePath = FolderPathHelper.Sanitize(File.ReadAllText(rsPathFile));
+                string RSfilePath = FolderPathHelper.Sanitize(rsPathText);
                 if (viewModel.Nodes != null && viewModel.Nodes.Count > 0)
                 {
                     List<Node> allNodes = GetAllNodes(viewModel.Nodes).ToList();

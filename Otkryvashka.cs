@@ -102,15 +102,14 @@ namespace TNovBIMUtils
             #endregion
 
             #region Модели в работу
-            string rsPathFile = config.ServerPath + "RSpath.txt";
-            if (!File.Exists(rsPathFile))
+            if (!TNovCommon.Server.ServerData.TryReadAllText("RSpath.txt", out string rsPathText))
             {
                 new InfoWindow280("Не найден файл RSpath.txt.").ShowDialog();
                 Logger.Log("Не найден RSpath.txt. Завершение работы.", 3);
                 return Result.Cancelled;
             }
 
-            string RSfilePath = FolderPathHelper.Sanitize(File.ReadAllText(rsPathFile));
+            string RSfilePath = FolderPathHelper.Sanitize(rsPathText);
             List<string> rvtFiles = new List<string>();
             if (viewModel.Nodes != null && viewModel.Nodes.Count > 0)
             {
@@ -312,14 +311,13 @@ namespace TNovBIMUtils
 
         private static List<string> LoadProjectNames(TNovConfig config)
         {
-            string CdeFilePath = config.ServerPath + "CDE.txt";
             var names = new List<string>();
             try
             {
-                if (!File.Exists(CdeFilePath))
+                if (!TNovCommon.Server.ServerData.TryReadAllLines("CDE.txt", out string[] cdeLines))
                     return names;
 
-                foreach (string line in File.ReadLines(CdeFilePath))
+                foreach (string line in cdeLines)
                 {
                     if (string.IsNullOrWhiteSpace(line))
                         continue;

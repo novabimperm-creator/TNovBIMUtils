@@ -113,7 +113,7 @@ namespace TNovBIMUtils
         }
         public void BuildTree(IEnumerable<string> existingModels, string configPath)
         {
-            List<string> filePaths = File.ReadAllLines(configPath + "RS.txt").ToList();
+            List<string> filePaths = TNovCommon.Server.ServerData.ReadAllLinesAbsolute(configPath + "RS.txt").ToList();
             Nodes = TreeBuilder.BuildTree(filePaths, existingModels);
         }
 

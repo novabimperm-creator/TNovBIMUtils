@@ -36,7 +36,7 @@ namespace TNovBIMUtils
                 Value = "Не выбран"
             });
 
-            string[] CDElines = File.ReadAllLines(@"\\fs-nova\Distr\0.For Admin\_TNov\CDE.txt");
+            string[] CDElines = TNovCommon.Server.ServerData.ReadAllLines("CDE.txt");
             
             foreach (string line in CDElines)
             {
@@ -176,7 +176,7 @@ namespace TNovBIMUtils
             string userName = UserNameHelper.GetCurrentUserName(true);
             TNovConfig config = TNovConfigLoad.LoadConfig();
             string userDepartment = "";
-            string[] rolesFile = File.ReadAllLines($"{config.ServerPath}roles.txt");
+            string[] rolesFile = TNovCommon.Server.ServerData.ReadAllLines("roles.txt");
             foreach (string role in rolesFile)
             {
                 if (role.Contains(userName))

@@ -110,7 +110,7 @@ namespace TNovBIMUtils
         public RevitServerViewModel(IEnumerable<string> existingModels, string lockedSuffix = " (вставлено)")
         {
             TNovConfig config = TNovConfigLoad.LoadConfig();
-            List<string> filePaths = File.ReadAllLines(config.ServerPath + "RS.txt").ToList();
+            List<string> filePaths = TNovCommon.Server.ServerData.ReadAllLines("RS.txt").ToList();
             Nodes = TreeBuilder.BuildTree(filePaths, existingModels, lockedSuffix);
         }
 
