@@ -115,6 +115,9 @@ namespace TNovBIMUtils
             this.ProgressBar.TNov_ProgressBar.Dispatcher.Invoke<double>((Func<double>)(() => this.ProgressBar.TNov_ProgressBar.Maximum = allcount));
             this.ProgressBar.TNov_ProgressBar.Dispatcher.Invoke<string>((Func<string>)(() => this.ProgressBar.maxvalue.Text = allcount.ToString()));
 
+            string album = TAlbumResolver.GetAlbumByDocument(docName);
+            Logger.Log("Альбом по имени модели: " + (album ?? "не определён"), 1);
+
             bool unhandledError = false;
             #region Основной код
             using (Transaction transaction = new Transaction(doc))
@@ -226,6 +229,15 @@ namespace TNovBIMUtils
                             if (TParam.IsReadOnly == false)
                             {
                                 TParam.Set(TSystemValue); Logger.Log("   имя системы: " + TSystemValue, 2);
+                            }
+                        }
+                        if (album != null && Param.ParamExistByGuid(TAlbumResolver.TAlbumParamGuid, elem)) //Т_Альбом
+                        {
+                            Parameter TParam = elem.get_Parameter(TAlbumResolver.TAlbumParamGuid);
+                            if (TParam != null && TParam.IsReadOnly == false)
+                            {
+                                string TAlbumValue = TAlbumResolver.Resolve(doc, elem, album);
+                                TParam.Set(TAlbumValue); Logger.Log("   альбом: " + TAlbumValue, 2);
                             }
                         }
                         if (Param.ParamExistByGuid(TStParamGuid, elem)) //Т_Толщина стенки

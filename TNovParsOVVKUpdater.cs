@@ -78,12 +78,14 @@ namespace TNovBIMUtils
 
             if (allElementIds.Count == 0) return;
 
+            string album = TAlbumResolver.GetAlbumByDocument(doc.Title);
+
             foreach (ElementId elementId in allElementIds)
             {
                 // Сбой на одном элементе не должен ронять обработку остальных
                 try
                 {
-                    ProcessElement(doc, elementId);
+                    ProcessElement(doc, elementId, album);
                 }
                 catch (Exception ex)
                 {
@@ -101,7 +103,7 @@ namespace TNovBIMUtils
                 || docName.Contains("-ТС") || docName.Contains("_ТС");
         }
 
-        private void ProcessElement(Document doc, ElementId elementId)
+        private void ProcessElement(Document doc, ElementId elementId, string album)
         {
             Element elem = doc.GetElement(elementId);
             if (elem == null) return;
@@ -155,6 +157,14 @@ namespace TNovBIMUtils
             Parameter pSystem = GetWritable(shared, TSystemNameParamGuid);
             if (pSystem != null)
                 SetString(pSystem, Param.GetStringParamValue(doc, adskGparamGuid, elem));
+
+            //Т_Альбом
+            if (album != null)
+            {
+                Parameter pAlbum = GetWritable(shared, TAlbumResolver.TAlbumParamGuid);
+                if (pAlbum != null)
+                    SetString(pAlbum, TAlbumResolver.Resolve(doc, elem, album));
+            }
 
             //Т_Толщина стенки
             Parameter pSt = GetWritable(shared, TStParamGuid);
