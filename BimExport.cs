@@ -199,6 +199,11 @@ namespace TNovBIMUtils
                     return Result.Cancelled;
                 }
                 string RSfilePath = FolderPathHelper.Sanitize(rsPathText);
+                if (TNovCommon.Server.RevitServerRedirect.TryApply(RSfilePath, out string rsRedirected))
+                {
+                    Logger.Log("Revit Server временно заменён (RSredirect.txt): " + RSfilePath + " → " + rsRedirected, 2);
+                    RSfilePath = rsRedirected;
+                }
                 if (viewModel.Nodes != null && viewModel.Nodes.Count > 0)
                 {
                     List<Node> allNodes = GetAllNodes(viewModel.Nodes).ToList();

@@ -110,6 +110,11 @@ namespace TNovBIMUtils
             }
 
             string RSfilePath = FolderPathHelper.Sanitize(rsPathText);
+            if (TNovCommon.Server.RevitServerRedirect.TryApply(RSfilePath, out string rsRedirected))
+            {
+                Logger.Log("Revit Server временно заменён (RSredirect.txt): " + RSfilePath + " → " + rsRedirected, 2);
+                RSfilePath = rsRedirected;
+            }
             List<string> rvtFiles = new List<string>();
             if (viewModel.Nodes != null && viewModel.Nodes.Count > 0)
             {
