@@ -1,0 +1,148 @@
+<Window x:Class="TNovBIMUtils.FloorCheckWPF"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="340"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        WindowStyle="None">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/TNovCommon;component/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="StepButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+                <Setter Property="Width" Value="38"/>
+                <Setter Property="Padding" Value="0"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="30"
+                      ResizeBorderThickness="5"
+                      GlassFrameThickness="0"
+                      CornerRadius="12"/>
+    </WindowChrome.WindowChrome>
+
+    <Border CornerRadius="12"
+            Background="{StaticResource BgBrush}"
+            BorderBrush="{StaticResource AccentBrush}"
+            BorderThickness="1">
+        <Grid Margin="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    MouseDown="TitleBar_MouseDown"
+                    Background="Transparent"
+                    Cursor="Arrow"
+                    Margin="6,6,6,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="35"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="ПРОВЕРКА ЭТАЖЕЙ"
+                               Grid.Column="0"
+                               Foreground="{StaticResource AccentBrush}"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                    <Button Content="✕"
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource CloseButtonStyleMini}"
+                            Click="closeButton_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                <RadioButton x:Name="numberRadio"
+                             Content="N_Эт.Номер"
+                             GroupName="FloorParam"
+                             IsChecked="True"
+                             Style="{StaticResource DarkRadioButtonStyle}"
+                             Checked="paramRadio_Checked"/>
+                <RadioButton x:Name="textRadio"
+                             Content="Т_Этаж"
+                             GroupName="FloorParam"
+                             Margin="16,0,0,0"
+                             Style="{StaticResource DarkRadioButtonStyle}"
+                             Checked="paramRadio_Checked"/>
+            </StackPanel>
+
+            <Grid Grid.Row="2" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="6"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0"
+                         x:Name="valueBox"
+                         MinHeight="38"
+                         Style="{StaticResource DarkTextBoxStyle}"
+                         TextAlignment="Center"/>
+                <!-- Только стрелка: выбранное значение переносится в поле, выбор сразу сбрасывается. -->
+                <ComboBox Grid.Column="2"
+                          x:Name="valuesCombo"
+                          Width="38"
+                          Margin="0"
+                          ToolTip="Значения, имеющиеся в модели"
+                          Style="{StaticResource DarkComboBoxStyle}"
+                          DropDownOpened="valuesCombo_DropDownOpened"
+                          SelectionChanged="valuesCombo_SelectionChanged"/>
+                <Button Grid.Column="4"
+                        x:Name="upButton"
+                        Content="^"
+                        ToolTip="Следующее значение из имеющихся в модели"
+                        Style="{StaticResource StepButtonStyle}"
+                        Click="upButton_Click"/>
+                <Button Grid.Column="6"
+                        x:Name="downButton"
+                        Content="v"
+                        ToolTip="Предыдущее значение из имеющихся в модели"
+                        Style="{StaticResource StepButtonStyle}"
+                        Click="downButton_Click"/>
+            </Grid>
+
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                        Content="Сбросить"
+                        ToolTip="Снять временное скрытие/изоляцию на виде"
+                        Style="{StaticResource CloseButtonStyle}"
+                        Click="resetButton_Click"/>
+                <Button Grid.Column="2"
+                        Content="Применить" Margin="0"
+                        ToolTip="Изолировать элементы с этим значением (пустое поле — элементы без значения)"
+                        Style="{StaticResource RunButtonStyle}"
+                        IsDefault="True"
+                        Click="applyButton_Click"/>
+            </Grid>
+
+            <TextBlock Grid.Row="4"
+                       x:Name="statusText"
+                       Style="{StaticResource DialogHintStyle}"
+                       Margin="0,10,0,0"/>
+        </Grid>
+    </Border>
+</Window>
