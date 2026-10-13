@@ -107,7 +107,8 @@ namespace TNovBIMUtils
                     _serverAvailable = false;
                     return false;
                 }
-                _serverAvailable = File.Exists(config.ServerPath + "usage.txt");
+                // Личная конфигурация: usage.txt пишется локально и «сервер» всегда доступен — обновитель только для корпоративной.
+                _serverAvailable = CorpGate.IsCorp(config) && File.Exists(config.ServerPath + "usage.txt");
             }
             catch
             {

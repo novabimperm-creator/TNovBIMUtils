@@ -48,6 +48,7 @@ namespace TNovBIMUtils
             #endregion
 
             TNovConfig config = TNovConfigLoad.LoadConfig(DBCommandName, TNovVersion); if (config == null) return Result.Failed;
+            if (!CorpGate.Require(config)) return Result.Failed;
 
             #region Настройки логов
             // создание log - файла

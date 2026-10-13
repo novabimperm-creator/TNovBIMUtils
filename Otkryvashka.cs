@@ -43,6 +43,7 @@ namespace TNovBIMUtils
 
             TNovConfig config = TNovConfigLoad.LoadConfig(DBCommandName, TNovVersion);
             if (config == null) return Result.Failed;
+            if (!CorpGate.Require(config)) return Result.Failed;
 
             #region Настройки логов
             Logger.Initialize(DBCommandName, dateTime, TNovVersion);
