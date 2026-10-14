@@ -99,17 +99,17 @@ namespace TNovBIMUtils
             foreach (var wall in walls)
             {
                 Element type = doc.GetElement(wall.GetTypeId());
-                if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString().Contains("Отделка")) elems.Add(doc.GetElement(wall.Id));
+                if (ModelOf(type).Contains("Отделка")) elems.Add(doc.GetElement(wall.Id));
             }
             foreach (var floor in floors)
             {
                 Element type = doc.GetElement(floor.GetTypeId());
-                if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString().Contains("Пол")) elems.Add(doc.GetElement(floor.Id));
+                if (ModelOf(type).Contains("Пол")) elems.Add(doc.GetElement(floor.Id));
             }
             foreach (var ceiling in ceilings)
             {
                 Element type = doc.GetElement(ceiling.GetTypeId());
-                if (type.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL).AsString().Contains("Потолок")) elems.Add(doc.GetElement(ceiling.Id));
+                if (ModelOf(type).Contains("Потолок")) elems.Add(doc.GetElement(ceiling.Id));
             }
             #endregion
 
@@ -189,13 +189,14 @@ namespace TNovBIMUtils
                         long idint = room.Id.Value;
 #endif
                         Logger.Log("Помещение " + idint.ToString(), 2);
-                        if (room.get_Parameter(NTParamsNotSetParamGuid).AsDouble() == 1)
+                        if (Param.ParamExistByGuid(NTParamsNotSetParamGuid, room) && room.get_Parameter(NTParamsNotSetParamGuid).AsDouble() == 1)
                         {
                             Logger.Log("   пропуск", 2); continue;
                         }
-                        string roomName = room.get_Parameter(BuiltInParameter.ROOM_NAME).AsValueString();
+                        string roomName = room.get_Parameter(BuiltInParameter.ROOM_NAME)?.AsValueString() ?? "";
                         string roomNazn = "";
-                        if (room.get_Parameter(BuiltInParameter.ROOM_DEPARTMENT).HasValue) roomNazn = room.get_Parameter(BuiltInParameter.ROOM_DEPARTMENT).AsValueString();
+                        Parameter depParam = room.get_Parameter(BuiltInParameter.ROOM_DEPARTMENT);
+                        if (depParam != null && depParam.HasValue) roomNazn = depParam.AsValueString() ?? "";
                         Logger.Log("   " + roomName + " " + roomNazn, 2);
 
                         string value = GetTNazn(roomNazn, roomName);
@@ -231,9 +232,11 @@ namespace TNovBIMUtils
                         }
 
                         string roomName = "";
-                        if (elem.get_Parameter(NOtdRoomParamGuid).HasValue) roomName = elem.get_Parameter(NOtdRoomParamGuid).AsString();
+                        Parameter roomParam = elem.get_Parameter(NOtdRoomParamGuid);
+                        if (roomParam != null && roomParam.HasValue) roomName = roomParam.AsString() ?? "";
                         string roomNazn = "";
-                        if (elem.LookupParameter("Отделка.Помещение.Назначение").HasValue) roomNazn = elem.LookupParameter("Отделка.Помещение.Назначение").AsString();
+                        Parameter naznParam = elem.LookupParameter("Отделка.Помещение.Назначение");
+                        if (naznParam != null && naznParam.HasValue) roomNazn = naznParam.AsString() ?? "";
                         Logger.Log("   " + roomName + " " + roomNazn, 2);
 
                         string value = GetTNazn(roomNazn, roomName);
@@ -290,6 +293,11 @@ namespace TNovBIMUtils
                     Dispatcher.CurrentDispatcher.InvokeShutdown();
                 }));
             }
+        }
+        // значение «Модель» типа, пустая строка если типа/параметра нет
+        static string ModelOf(Element type)
+        {
+            return type?.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL)?.AsString() ?? "";
         }
         string GetTNazn(string Nazn, string Name)
         {
